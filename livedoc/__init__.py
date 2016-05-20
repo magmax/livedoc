@@ -10,7 +10,7 @@ class LiveDoc(object):
     def __init__(self, template):
         self.template = template
 
-    def render(self):
+    def render(self, fixtures):
         html =  markdown.markdown(self.template)
         parser = etree.HTMLParser()
         tree   = etree.parse(StringIO(html), parser)

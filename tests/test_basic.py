@@ -1,16 +1,28 @@
 import unittest
 from livedoc import LiveDoc
 
+class Fixtures(object):
+    pass
+
 
 class BasicUsage(unittest.TestCase):
+    valid_html = (
+        'assign [Bilbo Baggins](- "c:set=#name") '
+        'and return [Bilbo Baggins](- "?=#name")'
+    )
+    invalid_html = (
+        'assign [Bilbo Baggings](- "c:set=#name") '
+        'and not return [Frodo Baggins](- "?=#name")'
+    )
+
     def test_variable_assignment_and_echo(self):
-        sut = LiveDoc('assign [Jane Smith](- "c:set=#name") and return [Jane Smith](- "?=#name")')
-        assert 'success' in sut.render()
+        sut = LiveDoc(self.valid_html)
+        assert 'success' in sut.render(Fixtures())
 
     def test_variable_assignment_and_echo_with_shortcut(self):
-        sut = LiveDoc('assign [Jane Smith](- "#name") and return [Jane Smith](- "?=#name")')
-        assert 'success' in sut.render()
+        sut = LiveDoc(self.valid_html)
+        assert 'success' in sut.render(Fixtures())
 
     def test_variable_assignment_and_failure(self):
-        sut = LiveDoc('assign [Jane Smith](- "c:set=#name") and not return [Jane Mully](- "?=#name")')
-        assert 'failure' in sut.render()
+        sut = LiveDoc(self.invalid_html)
+        assert 'failure' in sut.render(Fixtures())
