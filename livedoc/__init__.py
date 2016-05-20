@@ -12,25 +12,20 @@ class LiveDoc(object):
 
     def render(self):
         html =  markdown.markdown(self.template)
-        # create variables
         parser = etree.HTMLParser()
         tree   = etree.parse(StringIO(html), parser)
         variables = {}
-        for a in tree.findall('//a'):
-            if a.attrib.get('href') == '-':
-                title = a.attrib.get('title')
-                if title.startswith('#'):
-                    variables[title] = a.text
-        for a in tree.findall('//a'):
-            if a.attrib.get('href') == '-':
-                title = a.attrib.get('title')
-                if title.startswith('?='):
-                    command, sep, varname = title.partition('=')
-                    print ('%s == %s' % (a.text, varname))
-                    a.attrib['class'] = 'success' if a.text == variables.get(varname) else 'failure'
+        for a in tree.findall('//a[@href="-"]'):
+            title = a.attrib.get('title')
+            if title.startswith('c:set='):
+                command, sep, varname = title.partition('=')
+                title = varname
+            if title.startswith('#'):
+                variables[title] = a.text
+            elif title.startswith('?='):
+                command, sep, varname = title.partition('=')
+                a.attrib['class'] = 'success' if a.text == variables.get(varname) else 'failure'
 
-
-        '<p>assign Jane Smith and return <a href="-" title="?=#name">Jane Smith</a></p>'
         return etree.tostring(tree).decode()
 
 
