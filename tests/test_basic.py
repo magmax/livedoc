@@ -2,7 +2,8 @@ import unittest
 from livedoc import LiveDoc
 
 class Fixtures(object):
-    pass
+    def ldfix_foo(self):
+        return 5
 
 
 class BasicUsage(unittest.TestCase):
@@ -37,3 +38,12 @@ class BasicUsage(unittest.TestCase):
 
     def test_raising_exception (self):
         sut = LiveDoc('[ ](- "a = 5 / 0")')
+        result = sut.render(Fixtures())
+        assert 'exception' in result
+        assert 'division by zero' in result
+
+    def test_can_call_fixtures(self):
+        fixtures = Fixtures()
+        sut = LiveDoc('[ ](- "a = foo()")')
+        result = sut.render(fixtures)
+        assert sut.variables['a'] == fixtures.ldfix_foo()
