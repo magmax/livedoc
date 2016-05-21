@@ -34,3 +34,6 @@ class BasicUsage(unittest.TestCase):
     def test_assign_expression_to_variable(self):
         sut = LiveDoc(self.expression_html)
         assert 'success' in sut.render(Fixtures())
+
+    def test_raising_exception (self):
+        sut = LiveDoc('[ ](- "a = 5 / 0")')
