@@ -7,16 +7,16 @@ class Fixtures(object):
 
 class BasicUsage(unittest.TestCase):
     valid_html = (
-        'assign [Bilbo Baggins](- "c:set=#name") '
-        'and return [Bilbo Baggins](- "?=#name")'
+        'assign [Bilbo Baggins](- "name = TEXT") '
+        'and return [Bilbo Baggins](- "TEXT == name")'
     )
     invalid_html = (
-        'assign [Bilbo Baggings](- "c:set=#name") '
-        'and not return [Frodo Baggins](- "?=#name")'
+        'assign [Bilbo Baggings](- "name = TEXT") '
+        'and not return [Frodo Baggins](- "TEXT == name")'
     )
     expression_html = (
-        'assign [Bilbo Baggins](- "c:set=#name") '
-        'and return [BILBO BAGGINS](- "?=#name.upper()")'
+        'assign [Bilbo Baggins](- "name = TEXT") '
+        'and return [BILBO BAGGINS](- "TEXT == name.upper()")'
     )
 
     def test_variable_assignment_and_echo(self):

@@ -1,3 +1,4 @@
+import re
 import markdown
 import unittest
 from lxml import etree
@@ -14,20 +15,25 @@ class LiveDoc(object):
         html =  markdown.markdown(self.template)
         parser = etree.HTMLParser()
         tree   = etree.parse(StringIO(html), parser)
-        variables = {}
+        variables = {'__builtins__': {}}
         for a in tree.findall('//a[@href="-"]'):
-            title = a.attrib.get('title')
-            if title.startswith('c:set='):
-                command, sep, varname = title.partition('=')
-                title = varname
-            if title.startswith('#'):
-                variables[title] = a.text
-            elif title.startswith('?='):
-                command, sep, varname = title.partition('=')
-                a.attrib['class'] = 'success' if a.text == variables.get(varname) else 'failure'
-
+            expression = a.attrib.get('title')
+            variables['TEXT'] = a.text
+            if self.is_assignment(expression):
+                variable, sep, expression = expression.partition('=')
+                variables[variable.strip()] = eval(expression, variables, fixtures.__dict__)
+                a.attrib['class'] = 'info'
+                continue
+            try:
+                r = eval(expression, variables, fixtures.__dict__)
+                status = 'info' if r is None else 'success' if r else 'failure'
+                a.attrib['class'] = status
+            except Exception as e:
+                print(e)
         return etree.tostring(tree).decode()
 
+    def is_assignment(self, expression):
+        return re.match('[\w\s\.\[\]]+=[^=]', expression)
 
 class TestCase(unittest.TestCase):
     def run(self, *args, **kwargs):
