@@ -1,7 +1,6 @@
 import os
 import re
 import markdown
-import unittest
 import inspect
 import logging
 from io import StringIO
@@ -92,7 +91,15 @@ class HtmlProcessor(Processor):
 
     def headers(self):
         head = etree.Element('head')
-        head.append(etree.Element('link', dict(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")))
+        head.append(
+            etree.Element(
+                'link',
+                dict(
+                    rel="stylesheet",
+                    href="custom.css",
+                )
+            )
+        )
         return head
 
     def is_assignment(self, expression):
@@ -159,4 +166,7 @@ class LiveDoc(object):
         for processor in self.processors:
             if processor.test(path):
                 return processor
-        raise LivDocException('No valid processor was found for file %s', path)
+        raise LivDocException(
+            'No valid processor was found for file %s',
+            path
+        )
