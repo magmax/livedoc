@@ -15,10 +15,10 @@ class LivedocTest(unittest.TestCase):
             'examples',
             'example1',
         )
-        livedoc = LiveDoc(processors=[processor])
         with tempfile.TemporaryDirectory() as tmp:
+            livedoc = LiveDoc(processors=[processor])
             livedoc.process(source, tmp)
-        print(processor.test.call_args_list)
+
         processor.test.assert_has_calls(
             [
                 mock.call(os.path.join(source, 'document_1.html')),

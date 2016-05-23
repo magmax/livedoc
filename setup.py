@@ -83,4 +83,9 @@ setup(
         'markdown == 2.6.6',
         'lxml     == 3.6.0',
     ],
+    entry_points={
+        'console_scripts': [
+            'livecmd = livecmd.__main__:main',
+        ],
+    },
 )
