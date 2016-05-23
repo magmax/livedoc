@@ -37,14 +37,12 @@ class HtmlProcessor(Processor):
         self.variables = {'__builtins__': {}}
 
     def test(self, filename):
-        return filename.lower().endswith('html')
+        return filename.lower().endswith(('html', 'htm'))
 
     def process_stream(self, content):
-        fixtures = None
         parser = etree.HTMLParser()
         tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
-        fixtures = self.fixtures(fixtures)
         for a in tree.findall('//a[@href="-"]'):
             span = etree.Element("span")
             a.addnext(span)
@@ -52,15 +50,13 @@ class HtmlProcessor(Processor):
 
             expression = a.attrib.get('title')
             self.variables['TEXT'] = a.text
-            if 'OUT' in self.variables:
-                self.variables.pop('OUT')
             if self.is_assignment(expression):
                 variable, sep, expression = expression.partition('=')
             else:
                 variable = None
             expression = expression.strip()
             try:
-                r = eval(expression, self.variables, fixtures)
+                r = eval(expression, self.variables, {})
                 if variable:
                     self.variables[variable.strip()] = r
                     status = 'info'
@@ -104,15 +100,6 @@ class HtmlProcessor(Processor):
 
     def is_assignment(self, expression):
         return re.match('[\w\s\.\[\]]+=[^=]', expression)
-
-    def fixtures(self, fix_obj):
-        prefix = 'ldfix_'
-
-        def extract():
-            for name, method in inspect.getmembers(fix_obj):
-                if name.startswith(prefix):
-                    yield (name[len(prefix):], method)
-        return dict(extract())
 
 
 class MarkdownProcessor(HtmlProcessor):
@@ -166,7 +153,7 @@ class LiveDoc(object):
         for processor in self.processors:
             if processor.test(path):
                 return processor
-        raise LivDocException(
+        raise LiveDocException(
             'No valid processor was found for file %s',
             path
         )

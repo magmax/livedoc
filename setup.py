@@ -69,16 +69,16 @@ setup(
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     zip_safe=False,
-    tests_require=[
-        'factory_boy   >= 2.7.0',
-        'pytest        >= 2.6.4',
-        'pytest-cov    >= 2.2.1',
+    extras_require={
+        'develop': [
+            'pytest        >= 2.6.4',
+            'pytest-cov    >= 2.2.1',
 
-        'coverage      >= 4.1b3',
-        'coveralls     >= 1.1',
+            'coveralls     >= 1.1',
 
-        'flake8        >= 2.5.4',
-    ],
+            'flake8        >= 2.5.4',
+        ],
+    },
     install_requires=[
         'markdown == 2.6.6',
         'lxml     == 3.6.0',
