@@ -3,28 +3,54 @@ import re
 import markdown
 import unittest
 import inspect
+import logging
 from io import StringIO
 from lxml import etree
 
-__ALL__ = ['LiveDoc', 'TestCase']
+__ALL__ = ['LiveDoc']
 
 
-class LiveDoc(object):
-    def __init__(self, template):
-        self.template = template
+logger = logging.getLogger(__name__)
+
+
+class LiveDocException(Exception):
+    pass
+
+
+class Processor(object):
+    def test(self, filename):
+        raise NotImplemented('Abstract method')
+
+    def process_stream(self, content):
+        raise NotImplemented('Abstract method')
+
+
+class CopyProcessor(Processor):
+    def test(self, filename):
+        return True
+
+    def process_stream(self, content):
+        return content
+
+
+class HtmlProcessor(Processor):
+    def __init__(self):
         self.variables = {'__builtins__': {}}
 
-    def render(self, fixtures):
-        html = markdown.markdown(
-            self.template,
-            extensions=['markdown.extensions.tables'],
-            output_format="xhtml5",
-        )
+    def test(self, filename):
+        return filename.lower().endswith('html')
+
+    def process_stream(self, content):
+        fixtures = None
         parser = etree.HTMLParser()
-        tree = etree.parse(StringIO(html), parser)
+        tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
         fixtures = self.fixtures(fixtures)
         for a in tree.findall('//a[@href="-"]'):
+            span = etree.Element("span")
+            a.addnext(span)
+            a.getparent().remove(a)
+
             expression = a.attrib.get('title')
             self.variables['TEXT'] = a.text
             if 'OUT' in self.variables:
@@ -47,11 +73,13 @@ class LiveDoc(object):
                         if r
                         else 'failure'
                     )
-                a.attrib['class'] = status
-                if 'OUT' in self.variables:
-                    a.text += self.variables['OUT']
+                span.attrib['class'] = status
+                data = self.variables.get('OUT') or ''
+                if a.text:
+                    data = a.text + data
+                span.text = data
             except Exception as e:
-                a.attrib['class'] = 'exception'
+                span.attrib['class'] = 'exception'
                 item = etree.Element("pre")
                 item.text = (
                     "The expression: `%s` returned %s"
@@ -59,8 +87,7 @@ class LiveDoc(object):
                 )
                 item.attrib['class'] = 'exception'
                 # TODO: add here the variable list as hidden control
-                a.addnext(item)
-
+                span.addnext(item)
         return etree.tostring(tree).decode()
 
     def headers(self):
@@ -81,28 +108,55 @@ class LiveDoc(object):
         return dict(extract())
 
 
-class TestCase(unittest.TestCase):
-    ld_fixture = None
-    ld_output = 'report'
+class MarkdownProcessor(HtmlProcessor):
+    def test(self, filename):
+        return filename.lower().endswith(('md', 'markdown'))
 
-    def test_livedoc(self):
-        def test_file():
-            classpath = inspect.getfile(self.__class__)
-            classfile, _ = os.path.splitext(classpath)
-            if self.ld_fixture is None:
-                return "%s.md" % classfile
-            if os.path.isabs(self.ld_fixture):
-                return self.ld_fixture
-            path, _ = os.path.split(classpath)
-            return os.path.join(path, self.ld_fixture)
+    def process_stream(self, content):
+        html = markdown.markdown(
+            content,
+            extensions=['markdown.extensions.tables'],
+            output_format="xhtml5",
+        )
+        return super(MarkdownProcessor, self).process_stream(html)
 
-        fixture_file = test_file()
-        fixture_path, fixture_filename_with_ext = os.path.split(fixture_file)
-        fixture_filename, fixture_ext = os.path.splitext(fixture_filename_with_ext)
-        fixture_fullpath = os.path.abspath(fixture_file)
-        with open(fixture_fullpath) as fd:
-            livedoc = LiveDoc(fd.read())
-        if not os.path.exists(self.ld_output):
-            os.makedirs(self.ld_output)
-        with open(os.path.join(self.ld_output, "%s.html" % fixture_filename), 'w+') as fd:
-            fd.write(livedoc.render(self))
+
+class LiveDoc(object):
+    def __init__(self, processors=None):
+        self.processors = processors or [
+            MarkdownProcessor(),
+            HtmlProcessor(),
+            CopyProcessor(),
+        ]
+
+    def process(self, source, target):
+        logger.info('Starting to process %s into %s', source, target)
+        for filename in os.listdir(source):
+            name, ext = os.path.splitext(filename)
+            fullsource = os.path.join(source, filename)
+            fulltarget = os.path.join(target, "%s.html" % name)
+            if os.path.isdir(fullsource):
+                self.process(fullsource, fulltarget)
+                continue
+            if os.path.isfile(fullsource):
+                self.process_file(fullsource, fulltarget)
+                continue
+            logger.info('Ignoring file %s', fullsource)
+
+    def process_file(self, source, target):
+        logger.info('Processing file %s into %s', source, target)
+        processor = self.choose_processor(source)
+        directory = os.path.dirname(target)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        with open(source) as fd:
+            content = processor.process_stream(fd.read())
+
+        with open(target, 'w+') as fd:
+            fd.write(content)
+
+    def choose_processor(self, path):
+        for processor in self.processors:
+            if processor.test(path):
+                return processor
+        raise LivDocException('No valid processor was found for file %s', path)
