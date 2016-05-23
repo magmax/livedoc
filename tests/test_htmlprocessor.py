@@ -47,7 +47,7 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_basic_append(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="OUT = \'foo\'">bar</a>')
+        result = sut.process_stream('<a href="-" title="OUT=\'foo\'">bar</a>')
         assert '<span class="info">barfoo</span>' in result
 
     def test_basic_check_success(self):

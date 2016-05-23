@@ -1,7 +1,6 @@
 import os
 import re
 import markdown
-import inspect
 import logging
 from io import StringIO
 from lxml import etree
