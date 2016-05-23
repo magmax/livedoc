@@ -19,10 +19,10 @@ class LiveDocException(Exception):
 
 class Processor(object):
     def test(self, filename):
-        raise NotImplemented('Abstract method')
+        raise NotImplementedError('Abstract method')
 
     def process_stream(self, content):
-        raise NotImplemented('Abstract method')
+        raise NotImplementedError('Abstract method')
 
 
 class CopyProcessor(Processor):
