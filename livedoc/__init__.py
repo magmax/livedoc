@@ -1,9 +1,16 @@
 import os
 import re
-import markdown
 import logging
 from io import StringIO
-from lxml import etree
+try:
+    import markdown
+except ImportError:
+    markdown = None
+try:
+    from lxml import etree
+except ImportError:
+    etree = None
+
 
 __ALL__ = ['LiveDoc']
 

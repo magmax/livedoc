@@ -10,7 +10,6 @@ install:
   - python setup.py install
   - python setup.py develop
   - pip install -U flake8 pytest pytest-cov coveralls
-  - pip install -U markdown lxml
   - pip freeze
 
 script:
