@@ -8,6 +8,79 @@ About                 |pip license| |pip wheel| |pip pyversions| |pip implem|
 Status                |version| |status|
 ====================  =================================================================================
 
+About
+=====
+
+Inspired by Concordion_, and a little bit by Fitnesse_ and RobotFramework_, LiveDoc_ is a way to maintain documentation live.
+
+The idea is to use documentation as test, so documentation is tested as well. This way you will be sure it is always updated and you can show beautiful reports to the Product Owners.
+
+Principles
+----------
+
+- Should be simple, so `eval` will be used to process the embedded code.
+- Should be easy to be used, by supporting Markdown_ to avoid hard HTML.
+- Should be extensible, by allowing custom fixtures, like Concordion_ does.
+- Should be powerful, by providing tools to simplify the work, just like RobotFramework_ libraries do.
+
+Comparative
+-----------
+
+====================================  ==========  ========  ==============  =======
+Feature                               Concordion  Fitnesse  RobotFramework  LiveDoc
+====================================  ==========  ========  ==============  =======
+Markdown support                      Yes         No        No              Yes
+Customizable output                   No          No        No              Planed
+Xunit integration                     Yes         Yes       Yes             Planed
+REST test facilities                  No          No        Yes             Planed
+Tables to write examples              Yes         Yes       Yes             Planed
+Fixtures language                     Java        Many      Python or Java  Python
+HTML generators integration           No          No        No              Yes
+Different kind of tables              No          Yes       No              Planed
+====================================  ==========  ========  ==============  =======
+
+How does it works?
+==================
+
+LiveDoc_ parses the generated HTML, searching some special code. You can generate that code anyway you want.
+
+In order to write Markdown_ easily, I've chosen the Concordion_ way: by adding links to ``-`` with code in the ``title`` attribute. Example:
+
+    <a href="-" title="a = TEXT">5</a>
+
+This will show the value, ``5`` as usual HTML text, but will assign the text to the variable ``a``. Now you can operate with it:
+
+    <a href="-" title="a += TEXT">5</a>
+
+And check the result:
+
+    <a href="-" title="a == TEXT">10</a>
+
+Or just show it (LiveDoc_ will show anything assigned to ``OUT`` variable):
+
+    <a href="-" title="OUT = a"></a>
+
+And you can add text in between:
+
+    By setting the value of <a href="-" title="a = TEXT">5</a> and adding <a href="-" title="a += TEXT">5</a> more, it will return <a href="-" title="a == TEXT">10</a>.
+
+But this is hard to be written and read, so it can be simplified by using Markdown_:
+
+    By setting the value of [5](- "a = TEXT") and adding [5](- "a += TEXT") more, it will return [10](- "a == TEXT)".
+
+
+
+Roadmap
+=======
+
+- **0.1.0**: CSS themes
+- **0.2.0**: fixture load
+- **0.3.0**: table support
+- **0.4.0**: python 2.X support
+- **0.5.0**: advanced fixtures
+- **0.6.0**: junit reports
+
+
 .. |travis| image:: https://img.shields.io/travis/magmax/livedoc.svg
   :target: `Travis`_
   :alt: Travis results
@@ -62,3 +135,8 @@ Status                |version| |status|
 .. _Coveralls: https://coveralls.io/r/magmax/livedoc
 
 .. _@magmax9: https://twitter.com/magmax9
+.. _Concordion: http://concordion.org
+.. _LiveDoc: https://github.com/magmax/livedoc
+.. _Fitnesse: http://fitnesse.org/
+.. _RobotFramework: http://robotframework.org/
+.. _Markdown: https://daringfireball.net/projects/markdown/
