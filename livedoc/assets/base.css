@@ -1,0 +1,11 @@
+.success {
+    background-color: #0f0;
+}
+
+.failure {
+    background-color: #f00;
+}
+
+.info {
+    background-color: #00f;
+}

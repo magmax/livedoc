@@ -23,15 +23,16 @@ class HtmlProcessorTest(unittest.TestCase):
         assert "whatever" in result
         assert "<body>" in result
 
-    def test_includes_css(self):
+    def test_includes_meta(self):
         sut = HtmlProcessor()
         result = sut.process_stream("whatever")
         tree = etree.parse(StringIO(result), etree.HTMLParser())
         root = tree.getroot()
         assert root[0].tag == 'head'
         assert any(
-            x.attrib.get('href') == 'custom.css'
-            for x in root[0].findall('link')
+            x.attrib.get('name') == 'generator'
+            and x.attrib.get('content') == 'livedoc'
+            for x in root[0].findall('meta')
         )
 
     def test_basic_assignment(self):

@@ -3,6 +3,9 @@ venv/
 tmp/
 .cache/
 *.egg-info/
+dist/
+build/
+output/
 *~
 *.pyc
 .coverage

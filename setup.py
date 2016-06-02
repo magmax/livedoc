@@ -4,7 +4,10 @@ import os
 import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
-from livedoc import about
+
+
+version = (0, 0, 1)
+str_version = '.'.join(str(v) for v in version)
 
 
 def read_file(filename):
@@ -36,9 +39,9 @@ class PyTest(TestCommand):
 
 
 setup(
-    name=about.name,
-    version=about.str_version,
-    description=about.description,
+    name='livedoc',
+    version=str_version,
+    description="Transforms tests in documentation, and viceversa",
     long_description=read_file('README.rst'),
     cmdclass={'test': PyTest},
     classifiers=[
@@ -64,7 +67,7 @@ setup(
     keywords='livedoc documentation specification concordion',
     author='Miguel Ángel García',
     author_email='miguelangel.garcia@gmail.com',
-    url=about.url,
+    url='https://github.com/magmax/livedoc',
     license='MIT',
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
@@ -80,12 +83,15 @@ setup(
         ],
     },
     install_requires=[
-        'markdown == 2.6.6',
-        'lxml     == 3.6.0',
+        'markdown  == 2.6.6',
+        'lxml      == 3.6.0',
+        'pyyaml    == 3.11',
+        'cssselect == 0.9.1',
+        'decorate  >= 0.0.0',
     ],
     entry_points={
         'console_scripts': [
-            'livecmd = livecmd.__main__:main',
+            'livedoc = livedoc.__main__:main',
         ],
     },
 )

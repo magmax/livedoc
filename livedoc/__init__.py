@@ -2,14 +2,8 @@ import os
 import re
 import logging
 from io import StringIO
-try:
-    import markdown
-except ImportError:
-    markdown = None
-try:
-    from lxml import etree
-except ImportError:
-    etree = None
+import markdown
+from lxml import etree
 
 
 __ALL__ = ['LiveDoc']
@@ -41,6 +35,7 @@ class CopyProcessor(Processor):
 class HtmlProcessor(Processor):
     def __init__(self):
         self.variables = {'__builtins__': {}}
+        super().__init__()
 
     def test(self, filename):
         return filename.lower().endswith(('html', 'htm'))
@@ -56,6 +51,7 @@ class HtmlProcessor(Processor):
 
             expression = a.attrib.get('title')
             self.variables['TEXT'] = a.text
+            self.variables['OUT'] = ''
             if self.is_assignment(expression):
                 variable, sep, expression = expression.partition('=')
             else:
@@ -95,10 +91,10 @@ class HtmlProcessor(Processor):
         head = etree.Element('head')
         head.append(
             etree.Element(
-                'link',
+                'meta',
                 dict(
-                    rel="stylesheet",
-                    href="custom.css",
+                    name="generator",
+                    content="livedoc",
                 )
             )
         )
@@ -122,7 +118,8 @@ class MarkdownProcessor(HtmlProcessor):
 
 
 class LiveDoc(object):
-    def __init__(self, processors=None):
+    def __init__(self, processors=None, decorator=None):
+        self.decorator = decorator
         self.processors = processors or [
             MarkdownProcessor(),
             HtmlProcessor(),
@@ -131,12 +128,17 @@ class LiveDoc(object):
 
     def process(self, source, target):
         logger.info('Starting to process %s into %s', source, target)
+        self.process_directory(source, target)
+        if self.decorator:
+            self.decorator.copy_assets(target)
+
+    def process_directory(self, source, target):
         for filename in os.listdir(source):
             name, ext = os.path.splitext(filename)
             fullsource = os.path.join(source, filename)
             fulltarget = os.path.join(target, "%s.html" % name)
             if os.path.isdir(fullsource):
-                self.process(fullsource, fulltarget)
+                self.process_directory(fullsource, fulltarget)
                 continue
             if os.path.isfile(fullsource):
                 self.process_file(fullsource, fulltarget)
@@ -151,6 +153,8 @@ class LiveDoc(object):
             os.makedirs(directory)
         with open(source) as fd:
             content = processor.process_stream(fd.read())
+        if self.decorator:
+            content = self.decorator.apply_to(content)
 
         with open(target, 'w+') as fd:
             fd.write(content)

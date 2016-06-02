@@ -1,6 +1,9 @@
+import os
 import argparse
 import logging
 from livedoc import LiveDoc
+from decorate import Decorate
+import pkg_resources
 
 logging.basicConfig(
     level=logging.INFO,
@@ -11,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Generate Live Documentation')
     parser.add_argument(
         'source',
         help='Path to be processed')
@@ -20,8 +23,15 @@ def main():
         default="output",
         help="Path to leave results"
     )
+    parser.add_argument(
+        '-t', '--theme',
+        default="bootstrap",
+        help="Theme to be used."
+    )
     args = parser.parse_args()
-    livedoc = LiveDoc()
+    decorator = Decorate(args.theme)
+    decorator.add_css(pkg_resources.resource_filename('livedoc', 'assets/base.css'))
+    livedoc = LiveDoc(decorator=decorator)
     livedoc.process(args.source, args.output)
 
 
