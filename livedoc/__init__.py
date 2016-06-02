@@ -53,47 +53,22 @@ class HtmlProcessor(Processor):
             text = a.text or ''
             self.variables['TEXT'] = a.text
             self.variables['OUT'] = ''
-            expr_type, l_expr, r_expr = self.split_expression(expression)
-            if expr_type == 'assign':
-                try:
-                    r = eval(r_expr, self.variables, {})
-                    self.variables[l_expr.strip()] = r
-                    span.attrib['class'] = 'info'
-                    span.text = text + (self.variables.get('OUT') or '')
-                except Exception as e:
-                    self._manage_exception(span, r_expr.strip(), e)
-                continue
+            expr = self.split_expression(expression)
             try:
-                expression = expression.strip()
-                r = eval(expression, self.variables, {})
-
-                if r is None:
-                    span.attrib['class'] = 'none'
-                    span.text = text
-                elif r:
-                    span.attrib['class'] = 'success'
-                    span.text = text
-                else:
-                    span.attrib['class'] = 'failure'
-                    span.text = 'Expected {text} but was {r}'.format(
-                        text=text,
-                        r=r
-                    )
+                expr.evaluate(self.variables)
+                span.attrib['class'] = expr.decorator
+                span.text = str(expr.output)
             except Exception as e:
-                self._manage_exception(span, expression, e)
+                span.attrib['class'] = 'exception'
+                item = etree.Element("pre")
+                item.text = (
+                    "The expression: `%s` returned %s"
+                    % (str(expr), str(e))
+                )
+                item.attrib['class'] = 'exception'
+                # TODO: add here the variable list as hidden control
+                span.addnext(item)
         return etree.tostring(tree).decode()
-
-    def _manage_exception(self, anchor, expression, exception):
-        anchor.attrib['class'] = 'exception'
-        item = etree.Element("pre")
-        item.text = (
-            "The expression: `%s` returned %s"
-            % (expression, str(exception))
-        )
-        item.attrib['class'] = 'exception'
-        # TODO: add here the variable list as hidden control
-        anchor.addnext(item)
-
 
     def headers(self):
         head = etree.Element('head')
@@ -109,15 +84,114 @@ class HtmlProcessor(Processor):
         return head
 
     def split_expression(self, expression):
-        for token in tokenize.tokenize(BytesIO(expression.encode()).readline):
-            if token.type == tokenize.OP:
-                _type = 'assign' if token.string == "=" else 'cmp'
-                return (
-                    _type,
-                    token.line[0:token.start[1]],
-                    token.line[token.end[1]:],
-                )
-        return 'call', expression, None
+        return expression_factory(expression)
+
+
+class Expression(object):
+    decorator = 'failure'
+    def evaluate(self, variables):
+        raise NotImplementedError()
+
+    @property
+    def output(self):
+        raise NotImplementedError()
+
+
+class Assignment(Expression):
+    decorator = 'info'
+    def __init__(self, left, right):
+        super().__init__()
+        self.left = left
+        self.right = right
+        self.result = None
+
+    def evaluate(self, variables):
+        self.result = eval(self.right, variables, {})
+        variables[self.left] = self.result
+
+    @property
+    def output(self):
+        return self.result
+
+    def __str__(self):
+        return self.right
+
+
+class Comparation(Expression):
+    def __init__(self, left, right, operator):
+        super().__init__()
+        self.left = left
+        self.right = right
+        self.operator = operator
+        self.success = False
+        self.text = None
+
+    def evaluate(self, variables):
+        self.left_result = eval(self.left, variables, {})
+        self.right_result = eval(self.right, variables, {})
+        self.success = self._operate()
+        self.text = variables.get('TEXT')
+
+    def _operate(self):
+        if self.operator == '==':
+            return self.left_result == self.right_result
+
+    @property
+    def decorator(self):
+        return 'success' if self.success else 'failure'
+
+    @property
+    def output(self):
+        if self.success:
+            return self.text
+
+        return "Expected {e} but found {r}".format(
+            e=self.left_result,
+            r=self.right_result,
+        )
+
+
+class Call(Expression):
+    decorator = 'info'
+    def __init__(self, expression):
+        super().__init__()
+        self.expression = expression
+
+    def evaluate(self, variables):
+        eval(self.expression, variables, {})
+
+    @property
+    def output(self):
+        return self.expression
+
+
+class Print(Expression):
+    decorator = 'info'
+    def __init__(self, expression):
+        super().__init__()
+        self.expression = expression
+        self.result = None
+
+    def evaluate(self, variables):
+        self.result = eval(self.expression, variables, {})
+
+    @property
+    def output(self):
+        return self.result
+
+
+def expression_factory(expression):
+    for token in tokenize.tokenize(BytesIO(expression.encode()).readline):
+        if token.type == tokenize.OP:
+            l = token.line[0:token.start[1]].strip()
+            r = token.line[token.end[1]:].strip()
+            if token.string == '=':
+                if l == 'OUT':
+                    return Print(r)
+                else:
+                    return Assignment(l, r)
+            return Comparation(l, r, token.string)
+    return Call(expression)
 
 
 class MarkdownProcessor(HtmlProcessor):
