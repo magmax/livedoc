@@ -30,8 +30,8 @@ class HtmlProcessorTest(unittest.TestCase):
         root = tree.getroot()
         assert root[0].tag == 'head'
         assert any(
-            x.attrib.get('name') == 'generator'
-            and x.attrib.get('content') == 'livedoc'
+            x.attrib.get('name') == 'generator' and
+            x.attrib.get('content') == 'livedoc'
             for x in root[0].findall('meta')
         )
 

@@ -1,4 +1,3 @@
-import os
 import argparse
 import logging
 from livedoc import LiveDoc
@@ -30,7 +29,9 @@ def main():
     )
     args = parser.parse_args()
     decorator = Decorate(args.theme)
-    decorator.add_css(pkg_resources.resource_filename('livedoc', 'assets/base.css'))
+    decorator.add_css(
+        pkg_resources.resource_filename('livedoc', 'assets/base.css')
+    )
     livedoc = LiveDoc(decorator=decorator)
     livedoc.process(args.source, args.output)
 
