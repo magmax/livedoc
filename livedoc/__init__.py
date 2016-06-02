@@ -45,10 +45,6 @@ class HtmlProcessor(Processor):
         tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
         for a in tree.findall('//a[@href="-"]'):
-            span = etree.Element("span")
-            a.addnext(span)
-            a.getparent().remove(a)
-
             expression = a.attrib.get('title')
             text = a.text or ''
             self.variables['TEXT'] = a.text
@@ -56,9 +52,10 @@ class HtmlProcessor(Processor):
             expr = self.split_expression(expression)
             try:
                 expr.evaluate(self.variables)
-                span.attrib['class'] = expr.decorator
-                span.text = str(expr.output)
+                a.addnext(expr.xml)
             except Exception as e:
+                span = etree.Element("span")
+                a.addnext(span)
                 span.attrib['class'] = 'exception'
                 item = etree.Element("pre")
                 item.text = (
@@ -68,6 +65,7 @@ class HtmlProcessor(Processor):
                 item.attrib['class'] = 'exception'
                 # TODO: add here the variable list as hidden control
                 span.addnext(item)
+            a.getparent().remove(a)
         return etree.tostring(tree).decode()
 
     def headers(self):
@@ -88,7 +86,6 @@ class HtmlProcessor(Processor):
 
 
 class Expression(object):
-    decorator = 'failure'
     def evaluate(self, variables):
         raise NotImplementedError()
 
@@ -97,8 +94,12 @@ class Expression(object):
         raise NotImplementedError()
 
 
+    @property
+    def xml(self):
+        raise NotImplementedError()
+
+
 class Assignment(Expression):
-    decorator = 'info'
     def __init__(self, left, right):
         super().__init__()
         self.left = left
@@ -109,12 +110,15 @@ class Assignment(Expression):
         self.result = eval(self.right, variables, {})
         variables[self.left] = self.result
 
-    @property
-    def output(self):
-        return self.result
-
     def __str__(self):
         return self.right
+
+    @property
+    def xml(self):
+        span = etree.Element('span')
+        span.attrib['class'] = 'info'
+        span.text = str(self.result)
+        return span
 
 
 class Comparation(Expression):
@@ -141,18 +145,21 @@ class Comparation(Expression):
         return 'success' if self.success else 'failure'
 
     @property
-    def output(self):
+    def xml(self):
+        span = etree.Element('span')
         if self.success:
-            return self.text
-
-        return "Expected {e} but found {r}".format(
+            span.attrib['class'] = 'success'
+            span.text = str(self.text)
+        else:
+            span.attrib['class'] = 'failure'
+            span.text = "Expected {e} but found {r}".format(
             e=self.left_result,
             r=self.right_result,
         )
+        return span
 
 
 class Call(Expression):
-    decorator = 'info'
     def __init__(self, expression):
         super().__init__()
         self.expression = expression
@@ -161,8 +168,11 @@ class Call(Expression):
         eval(self.expression, variables, {})
 
     @property
-    def output(self):
-        return self.expression
+    def xml(self):
+        span = etree.Element('span')
+        span.attrib['class'] = 'info'
+        span.text = str(self.expression)
+        return span
 
 
 class Print(Expression):
@@ -178,6 +188,13 @@ class Print(Expression):
     @property
     def output(self):
         return self.result
+
+    @property
+    def xml(self):
+        span = etree.Element('span')
+        span.attrib['class'] = 'info'
+        span.text = str(self.result)
+        return span
 
 
 def expression_factory(expression):
