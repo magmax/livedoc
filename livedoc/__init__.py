@@ -46,7 +46,6 @@ class HtmlProcessor(Processor):
         tree.getroot().insert(0, self.headers())
         for a in tree.findall('//a[@href="-"]'):
             expression = a.attrib.get('title')
-            text = a.text or ''
             self.variables['TEXT'] = a.text
             self.variables['OUT'] = ''
             expr = self.split_expression(expression)
@@ -92,7 +91,6 @@ class Expression(object):
     @property
     def output(self):
         raise NotImplementedError()
-
 
     @property
     def xml(self):
@@ -153,9 +151,9 @@ class Comparation(Expression):
         else:
             span.attrib['class'] = 'failure'
             span.text = "Expected {e} but found {r}".format(
-            e=self.left_result,
-            r=self.right_result,
-        )
+                e=self.left_result,
+                r=self.right_result,
+            )
         return span
 
 
@@ -176,7 +174,6 @@ class Call(Expression):
 
 
 class Print(Expression):
-    decorator = 'info'
     def __init__(self, expression):
         super().__init__()
         self.expression = expression
