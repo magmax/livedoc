@@ -30,7 +30,7 @@ Comparative
 Feature                               Concordion  Fitnesse  RobotFramework  LiveDoc
 ====================================  ==========  ========  ==============  =======
 Markdown support                      Yes         No        No              Yes
-Customizable output                   No          No        No              Planed
+Customizable output                   No          No        No              Yes
 Xunit integration                     Yes         Yes       Yes             Planed
 REST test facilities                  No          No        Yes             Planed
 Tables to write examples              Yes         Yes       Yes             Planed
@@ -73,12 +73,12 @@ But this is hard to be written and read, so it can be simplified by using Markdo
 Roadmap
 =======
 
-- **0.1.0**: CSS themes
 - **0.2.0**: fixture load
 - **0.3.0**: table support
 - **0.4.0**: python 2.X support
 - **0.5.0**: advanced fixtures
 - **0.6.0**: junit reports
+- **0.7.0**: Improve style on errors
 
 
 .. |travis| image:: https://img.shields.io/travis/magmax/livedoc.svg

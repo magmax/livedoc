@@ -7,5 +7,9 @@
 }
 
 .info {
-    background-color: #00f;
+    background-color: #00a;
+}
+
+.exception {
+    background-color: #f00;
 }

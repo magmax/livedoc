@@ -1,7 +1,8 @@
 import os
 import re
+import tokenize
 import logging
-from io import StringIO
+from io import StringIO, BytesIO
 import markdown
 from lxml import etree
 
@@ -50,31 +51,43 @@ class HtmlProcessor(Processor):
             a.getparent().remove(a)
 
             expression = a.attrib.get('title')
+            text = a.text or ''
             self.variables['TEXT'] = a.text
             self.variables['OUT'] = ''
-            if self.is_assignment(expression):
-                variable, sep, expression = expression.partition('=')
-            else:
-                variable = None
-            expression = expression.strip()
-            try:
-                r = eval(expression, self.variables, {})
-                if variable:
-                    self.variables[variable.strip()] = r
-                    status = 'info'
-                else:
-                    status = (
-                        'none'
-                        if r is None
-                        else 'success'
-                        if r
-                        else 'failure'
+            expr_type, left_expr, right_expr = self.split_expression(expression)
+            if expr_type == 'assign':
+                try:
+                    r = eval(right_expr, self.variables, {})
+                    self.variables[left_expr.strip()] = r
+                    span.attrib['class'] = 'info'
+                    span.text = text + (self.variables.get('OUT') or '')
+                except Exception as e:
+                    span.attrib['class'] = 'exception'
+                    item = etree.Element("pre")
+                    item.text = (
+                        "The expression: `%s` returned %s"
+                        % (right_expr.strip(), str(e))
                     )
-                span.attrib['class'] = status
-                data = self.variables.get('OUT') or ''
-                if a.text:
-                    data = a.text + data
-                span.text = data
+                    item.attrib['class'] = 'exception'
+                    # TODO: add here the variable list as hidden control
+                    span.addnext(item)
+                continue
+            try:
+                expression = expression.strip()
+                r = eval(expression, self.variables, {})
+
+                if r is None:
+                    span.attrib['class'] = 'none'
+                    span.text = text
+                elif r:
+                    span.attrib['class'] = 'success'
+                    span.text = text
+                else:
+                    span.attrib['class'] = 'failure'
+                    span.text = 'Expected {text} but was {r}'.format(
+                        text=text,
+                        r=r
+                    )
             except Exception as e:
                 span.attrib['class'] = 'exception'
                 item = etree.Element("pre")
@@ -100,9 +113,12 @@ class HtmlProcessor(Processor):
         )
         return head
 
-    def is_assignment(self, expression):
-        return re.match('[\w\s\.\[\]]+=[^=]', expression)
-
+    def split_expression(self, expression):
+        for token in tokenize.tokenize(BytesIO(expression.encode()).readline):
+            if token.type == tokenize.OP:
+                _type = 'assign' if token.string == "=" else 'cmp'
+                return _type, token.line[0:token.start[1]], token.line[token.end[1]:]
+        return 'call', expression, None
 
 class MarkdownProcessor(HtmlProcessor):
     def test(self, filename):
@@ -146,6 +162,8 @@ class LiveDoc(object):
             logger.info('Ignoring file %s', fullsource)
 
     def process_file(self, source, target):
+        if source.endswith('~'):
+            return
         logger.info('Processing file %s into %s', source, target)
         processor = self.choose_processor(source)
         directory = os.path.dirname(target)
