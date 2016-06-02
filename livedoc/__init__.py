@@ -61,15 +61,7 @@ class HtmlProcessor(Processor):
                     span.attrib['class'] = 'info'
                     span.text = text + (self.variables.get('OUT') or '')
                 except Exception as e:
-                    span.attrib['class'] = 'exception'
-                    item = etree.Element("pre")
-                    item.text = (
-                        "The expression: `%s` returned %s"
-                        % (r_expr.strip(), str(e))
-                    )
-                    item.attrib['class'] = 'exception'
-                    # TODO: add here the variable list as hidden control
-                    span.addnext(item)
+                    self._manage_exception(span, r_expr.strip(), e)
                 continue
             try:
                 expression = expression.strip()
@@ -88,16 +80,20 @@ class HtmlProcessor(Processor):
                         r=r
                     )
             except Exception as e:
-                span.attrib['class'] = 'exception'
-                item = etree.Element("pre")
-                item.text = (
-                    "The expression: `%s` returned %s"
-                    % (expression, str(e))
-                )
-                item.attrib['class'] = 'exception'
-                # TODO: add here the variable list as hidden control
-                span.addnext(item)
+                self._manage_exception(span, expression, e)
         return etree.tostring(tree).decode()
+
+    def _manage_exception(self, anchor, expression, exception):
+        anchor.attrib['class'] = 'exception'
+        item = etree.Element("pre")
+        item.text = (
+            "The expression: `%s` returned %s"
+            % (expression, str(exception))
+        )
+        item.attrib['class'] = 'exception'
+        # TODO: add here the variable list as hidden control
+        anchor.addnext(item)
+
 
     def headers(self):
         head = etree.Element('head')
