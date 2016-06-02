@@ -1,5 +1,4 @@
 import os
-import re
 import tokenize
 import logging
 from io import StringIO, BytesIO
@@ -54,11 +53,11 @@ class HtmlProcessor(Processor):
             text = a.text or ''
             self.variables['TEXT'] = a.text
             self.variables['OUT'] = ''
-            expr_type, left_expr, right_expr = self.split_expression(expression)
+            expr_type, l_expr, r_expr = self.split_expression(expression)
             if expr_type == 'assign':
                 try:
-                    r = eval(right_expr, self.variables, {})
-                    self.variables[left_expr.strip()] = r
+                    r = eval(r_expr, self.variables, {})
+                    self.variables[l_expr.strip()] = r
                     span.attrib['class'] = 'info'
                     span.text = text + (self.variables.get('OUT') or '')
                 except Exception as e:
@@ -66,7 +65,7 @@ class HtmlProcessor(Processor):
                     item = etree.Element("pre")
                     item.text = (
                         "The expression: `%s` returned %s"
-                        % (right_expr.strip(), str(e))
+                        % (r_expr.strip(), str(e))
                     )
                     item.attrib['class'] = 'exception'
                     # TODO: add here the variable list as hidden control
@@ -117,8 +116,13 @@ class HtmlProcessor(Processor):
         for token in tokenize.tokenize(BytesIO(expression.encode()).readline):
             if token.type == tokenize.OP:
                 _type = 'assign' if token.string == "=" else 'cmp'
-                return _type, token.line[0:token.start[1]], token.line[token.end[1]:]
+                return (
+                    _type,
+                    token.line[0:token.start[1]],
+                    token.line[token.end[1]:],
+                )
         return 'call', expression, None
+
 
 class MarkdownProcessor(HtmlProcessor):
     def test(self, filename):

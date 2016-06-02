@@ -58,8 +58,8 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_basic_check_failure(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="1 == 0">True</a>')
-        assert '<span class="failure">Expected True but was False</span>' in result
+        r = sut.process_stream('<a href="-" title="1 == 0">True</a>')
+        assert '<span class="failure">Expected True but was False</span>' in r
 
     def test_full_assignment_and_check(self):
         sut = HtmlProcessor()
