@@ -1,15 +1,15 @@
 .success {
-    background-color: #0f0;
+    background-color: #6AF46B;
 }
 
 .failure {
-    background-color: #f00;
+    background-color: #FF7B77;
 }
 
 .info {
-    background-color: #ddf;
+    background-color: #87BEFF;
 }
 
 .exception {
-    background-color: #f00;
+    background-color: #E97931;
 }
