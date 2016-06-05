@@ -96,6 +96,14 @@ class Expression(object):
     def xml(self):
         raise NotImplementedError()
 
+    def autotype(self, value):
+        for t in (int, float, str):
+            try:
+                return t(value)
+            except ValueError as e:
+                pass
+        return value
+
 
 class Assignment(Expression):
     def __init__(self, left, right):
@@ -105,7 +113,8 @@ class Assignment(Expression):
         self.result = None
 
     def evaluate(self, variables):
-        self.result = eval(self.right, variables, {})
+        r = eval(self.right, variables, {})
+        self.result = self.autotype(r)
         variables[self.left] = self.result
 
     def __str__(self):
@@ -136,7 +145,7 @@ class Comparation(Expression):
 
     def _operate(self):
         if self.operator == '==':
-            return self.left_result == self.right_result
+            return self.autotype(self.left_result) == self.autotype(self.right_result)
 
     @property
     def decorator(self):
@@ -150,10 +159,17 @@ class Comparation(Expression):
             span.text = str(self.text)
         else:
             span.attrib['class'] = 'failure'
-            span.text = "Expected {e} but found {r}".format(
-                e=self.left_result,
-                r=self.right_result,
-            )
+            old_span = etree.Element('span')
+            old_span.attrib['class'] = 'failure-expected'
+            old_span.text = str(self.left_result)
+            span.append(old_span)
+            space_span = etree.Element('span')
+            space_span.text = ' '
+            span.append(space_span)
+            new_span = etree.Element('span')
+            new_span.attrib['class'] = 'failure-result'
+            new_span.text = str(self.right_result)
+            span.append(new_span)
         return span
 
 
