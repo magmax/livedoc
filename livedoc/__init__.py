@@ -220,7 +220,8 @@ def expression_factory(expression):
                     return Print(r)
                 else:
                     return Assignment(l, r)
-            return Comparation(l, r, token.string)
+            elif token.string not in ('+', '-', '*', '/', '%', '!',):
+                return Comparation(l, r, token.string)
     return Call(expression)
 
 
