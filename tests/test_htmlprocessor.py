@@ -59,7 +59,8 @@ class HtmlProcessorTest(unittest.TestCase):
     def test_basic_check_failure(self):
         sut = HtmlProcessor()
         r = sut.process_stream('<a href="-" title="1 == 0">True</a>')
-        assert '<span class="failure">Expected 1 but found 0</span>' in r
+        assert '<span class="failure-expected">1</span><span>' in r
+        assert '<span class="failure-result">0</span>' in r
 
     def test_full_assignment_and_check(self):
         sut = HtmlProcessor()
@@ -73,8 +74,7 @@ class HtmlProcessorTest(unittest.TestCase):
         sut = HtmlProcessor()
         result = sut.process_stream('<a href="-" title="a = 1/0"></a>')
         assert (
-            '<pre class="exception">'
             'The expression: `1/0` returned division by zero'
-            '</pre>'
             in result
         )
+        assert 'Traceback (most recent call last):' in result
