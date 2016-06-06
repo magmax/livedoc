@@ -33,14 +33,14 @@ Markdown support                      Yes         No        No              Yes
 Customizable output                   No          No        No              Yes
 Xunit integration                     Yes         Yes       Yes             Planed
 REST test facilities                  No          No        Yes             Planed
-Tables to write examples              Yes         Yes       Yes             Planed
+Tables to write examples              Yes         Yes       Yes             Yes
 Fixtures language                     Java        Many      Python or Java  Python
 HTML generators integration           No          No        No              Yes
 Different kind of tables              No          Yes       No              Planed
 ====================================  ==========  ========  ==============  =======
 
-How does it works?
-==================
+How does it work?
+=================
 
 LiveDoc_ parses the generated HTML, searching some special code. You can generate that code anyway you want.
 
@@ -74,11 +74,10 @@ Roadmap
 =======
 
 - **0.2.0**: fixture load
-- **0.3.0**: table support
-- **0.4.0**: python 2.X support
-- **0.5.0**: advanced fixtures
-- **0.6.0**: junit reports
-- **0.7.0**: Improve style on errors
+- **0.3.0**: python 2.X support
+- **0.4.0**: advanced fixtures
+- **0.5.0**: junit reports
+- **0.6.0**: Improve style on errors
 
 
 .. |travis| image:: https://img.shields.io/travis/magmax/livedoc.svg
