@@ -71,8 +71,8 @@ class HtmlProcessorTest(unittest.TestCase):
         sut = HtmlProcessor()
         result = sut.process_stream(
             '<a href="-" title="a = TEXT">1</a>'
-            '<a href="-" title="a == TEXT">1</a>'
-            , {}
+            '<a href="-" title="a == TEXT">1</a>',
+            {}
         )
         assert '<span class="success">1</span>' in result
 
