@@ -145,3 +145,22 @@ class HtmlProcessorTest(unittest.TestCase):
   </tbody>
 </table>''')
         assert sut.variables['a'] == 5
+
+    def test_short_table_processing_with_empty_patterns(self):
+        sut = HtmlProcessor()
+        result = sut.process_stream('''
+<table>
+  <thead>
+    <tr>
+      <th>foo</th>
+      <th><a href="-" title="a=TEXT">a</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>bar</td>
+      <td>27</td>
+    </tr>
+  </tbody>
+</table>''')
+        assert sut.variables['a'] == 27
