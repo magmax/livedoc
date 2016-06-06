@@ -224,6 +224,8 @@ class Comparation(Expression):
             span.append(new_span)
         return span
 
+    def __str__(self):
+        return "%s %s %s" % (self.left, self.operator, self.right)
 
 class Call(Expression):
     def __init__(self, expression):
