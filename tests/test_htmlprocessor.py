@@ -19,13 +19,13 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_process_returns_html(self):
         sut = HtmlProcessor()
-        result = sut.process_stream("whatever")
+        result = sut.process_stream("whatever", {})
         assert "whatever" in result
         assert "<body>" in result
 
     def test_includes_meta(self):
         sut = HtmlProcessor()
-        result = sut.process_stream("whatever")
+        result = sut.process_stream("whatever", {})
         tree = etree.parse(StringIO(result), etree.HTMLParser())
         root = tree.getroot()
         assert root[0].tag == 'head'
@@ -37,28 +37,33 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_basic_assignment(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="foo = TEXT">bar</a>')
+        result = sut.process_stream('<a href="-" title="foo = TEXT">bar</a>',
+                                    {})
         assert sut.variables['foo'] == 'bar'
         assert '<span class="info">bar</span>' in result
 
     def test_basic_echo(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="OUT = \'foo\'"></a>')
+        result = sut.process_stream('<a href="-" title="OUT = \'foo\'"></a>',
+                                    {})
         assert '<span class="info">foo</span>' in result
 
     def test_basic_append(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="OUT=\'foo\'">bar</a>')
+        result = sut.process_stream('<a href="-" title="OUT=\'foo\'">bar</a>',
+                                    {})
         assert '<span class="info">foo</span>' in result
 
     def test_basic_check_success(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="1 == 1">True</a>')
+        result = sut.process_stream('<a href="-" title="1 == 1">True</a>',
+                                    {})
         assert '<span class="success">True</span>' in result
 
     def test_basic_check_failure(self):
         sut = HtmlProcessor()
-        r = sut.process_stream('<a href="-" title="1 == 0">True</a>')
+        r = sut.process_stream('<a href="-" title="1 == 0">True</a>',
+                               {})
         assert '<span class="failure-expected">1</span><span>' in r
         assert '<span class="failure-result">0</span>' in r
 
@@ -67,12 +72,13 @@ class HtmlProcessorTest(unittest.TestCase):
         result = sut.process_stream(
             '<a href="-" title="a = TEXT">1</a>'
             '<a href="-" title="a == TEXT">1</a>'
+            , {}
         )
         assert '<span class="success">1</span>' in result
 
     def test_statement_raises_an_exception(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="a = 1/0"></a>')
+        result = sut.process_stream('<a href="-" title="a = 1/0"></a>', {})
         assert (
             'The expression: `1/0` returned division by zero'
             in result
@@ -91,7 +97,7 @@ class HtmlProcessorTest(unittest.TestCase):
   <tbody>
       <td><a href="-" title="a=TEXT">5</a></td>
   </tbody>
-</table>''')
+</table>''', {})
         assert sut.variables['a'] == 5
 
     def test_table_preprocessing(self):
@@ -142,7 +148,7 @@ class HtmlProcessorTest(unittest.TestCase):
       <td>5</td>
     </tr>
   </tbody>
-</table>''')
+</table>''', {})
         assert sut.variables['a'] == 5
 
     def test_short_table_processing_with_empty_patterns(self):
@@ -161,5 +167,5 @@ class HtmlProcessorTest(unittest.TestCase):
       <td>27</td>
     </tr>
   </tbody>
-</table>''')
+</table>''', {})
         assert sut.variables['a'] == 27

@@ -23,7 +23,7 @@ class Processor(object):
     def test(self, filename):
         raise NotImplementedError('Abstract method')
 
-    def process_stream(self, content):
+    def process_stream(self, content, fixtures):
         raise NotImplementedError('Abstract method')
 
 
@@ -31,7 +31,7 @@ class CopyProcessor(Processor):
     def test(self, filename):
         return True
 
-    def process_stream(self, content):
+    def process_stream(self, content, fixtures):
         return content
 
 
@@ -43,23 +43,23 @@ class HtmlProcessor(Processor):
     def test(self, filename):
         return filename.lower().endswith(('html', 'htm'))
 
-    def process_stream(self, content):
+    def process_stream(self, content, fixtures):
         parser = etree.HTMLParser()
         tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
         self._preprocess(tree)
         for a in tree.findall('//a[@href="-"]'):
-            self.process_element(a)
+            self.process_element(a, fixtures)
             a.getparent().remove(a)
         return etree.tostring(tree).decode()
 
-    def process_element(self, a):
+    def process_element(self, a, fixtures):
         expression = a.attrib.get('title')
         self.variables['TEXT'] = a.text
         self.variables['OUT'] = ''
         expr = self.split_expression(expression)
         try:
-            expr.evaluate(self.variables)
+            expr.evaluate(self.variables, fixtures)
             a.addnext(expr.xml)
         except Exception as e:
             self._format_exception(a, expr, e)
@@ -136,7 +136,7 @@ class HtmlProcessor(Processor):
 
 
 class Expression(object):
-    def evaluate(self, variables):
+    def evaluate(self, variables, fixtures):
         raise NotImplementedError()
 
     @property
@@ -163,8 +163,8 @@ class Assignment(Expression):
         self.right = right
         self.result = None
 
-    def evaluate(self, variables):
-        r = eval(self.right, variables, {})
+    def evaluate(self, variables, fixtures):
+        r = eval(self.right, fixtures, variables)
         self.result = self.autotype(r)
         variables[self.left] = self.result
 
@@ -188,16 +188,16 @@ class Comparation(Expression):
         self.success = False
         self.text = None
 
-    def evaluate(self, variables):
-        self.left_result = eval(self.left, variables, {})
-        self.right_result = eval(self.right, variables, {})
-        self.success = self._operate()
+    def evaluate(self, variables, fixtures):
+        self.left_result = eval(self.left, fixtures, variables)
+        self.right_result = eval(self.right, fixtures, variables)
+        self.success = self._operate(fixtures)
         self.text = variables.get('TEXT')
 
-    def _operate(self):
+    def _operate(self, fixtures):
         l = self.autotype(self.left_result)
         r = self.autotype(self.right_result)
-        return eval("%s %s %s" % (l, self.operator, r))
+        return eval("%s %s %s" % (l, self.operator, r), {}, {})
 
     @property
     def decorator(self):
@@ -230,8 +230,8 @@ class Call(Expression):
         super().__init__()
         self.expression = expression
 
-    def evaluate(self, variables):
-        eval(self.expression, variables, {})
+    def evaluate(self, variables, fixtures):
+        eval(self.expression, fixtures, variables)
 
     @property
     def xml(self):
@@ -250,8 +250,8 @@ class Print(Expression):
         self.expression = expression
         self.result = None
 
-    def evaluate(self, variables):
-        self.result = eval(self.expression, variables, {})
+    def evaluate(self, variables, fixtures):
+        self.result = eval(self.expression, fixtures, variables)
 
     @property
     def output(self):
@@ -275,7 +275,7 @@ def expression_factory(expression):
                     return Print(r)
                 else:
                     return Assignment(l, r)
-            elif token.string not in ('+', '-', '*', '/', '%', '!',):
+            elif token.string not in '+-*/%!()[]{}':
                 return Comparation(l, r, token.string)
     return Call(expression)
 
@@ -284,13 +284,13 @@ class MarkdownProcessor(HtmlProcessor):
     def test(self, filename):
         return filename.lower().endswith(('md', 'markdown'))
 
-    def process_stream(self, content):
+    def process_stream(self, content, fixtures):
         html = markdown.markdown(
             content,
             extensions=['markdown.extensions.tables'],
             output_format="xhtml5",
         )
-        return super(MarkdownProcessor, self).process_stream(html)
+        return super(MarkdownProcessor, self).process_stream(html, fixtures)
 
 
 class LiveDoc(object):
@@ -322,15 +322,17 @@ class LiveDoc(object):
             logger.info('Ignoring file %s', fullsource)
 
     def process_file(self, source, target):
-        if source.endswith('~'):
+        if source.endswith(('~', '.py')):
             return
         logger.info('Processing file %s into %s', source, target)
         processor = self.choose_processor(source)
+        fixtures = self._load_fixtures(source)
         directory = os.path.dirname(target)
         if not os.path.exists(directory):
             os.makedirs(directory)
         with open(source) as fd:
-            content = processor.process_stream(fd.read())
+            content = processor.process_stream(fd.read(),
+                                               copy.deepcopy(fixtures))
         if self.decorator:
             content = self.decorator.apply_to(content)
 
@@ -345,3 +347,13 @@ class LiveDoc(object):
             'No valid processor was found for file %s',
             path
         )
+
+    def _load_fixtures(self, source):
+        filename, ext = os.path.splitext(source)
+        filename += '.py'
+        if not os.path.exists(filename):
+            return {}
+        variables = {}
+        with open(filename) as fd:
+            exec(fd.read(), variables)
+        return variables

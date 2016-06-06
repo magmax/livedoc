@@ -20,6 +20,6 @@ class MarkdownProcessorTest(unittest.TestCase):
 
     def test_process_returns_html(self):
         sut = MarkdownProcessor()
-        result = sut.process_stream("whatever")
+        result = sut.process_stream("whatever", {})
         assert "whatever" in result
         assert "<body>" in result

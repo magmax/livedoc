@@ -14,4 +14,4 @@ class CopyProcessorTest(unittest.TestCase):
 
     def test_process_returns_echo(self):
         sut = CopyProcessor()
-        assert sut.process_stream("whatever") == "whatever"
+        assert sut.process_stream("whatever", {}) == "whatever"
