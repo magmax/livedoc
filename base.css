@@ -1,0 +1,27 @@
+.success {
+    background-color: #BFFCC0;
+}
+
+.failure {
+    background-color: #FEA4A2;
+}
+
+.failure-expected {
+    text-decoration:line-through;
+}
+
+.info {
+    background-color: #DAEAFC;
+}
+
+.exception {
+    background-color: #FFC9A6;
+    display: none;
+
+    unicode-bidi: embed;
+    font-family: monospace;
+    white-space: pre;
+}
+.exception-button {
+    background-color: #FFC9A6;
+}

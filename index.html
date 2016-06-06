@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><head><meta content="livedoc" name="generator"/><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"></link><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" rel="stylesheet"></link><link href="/home/miguel/proyectos/livedoc/livedoc/assets/base.css" rel="stylesheet"></link><script rel="src" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script><script rel="src" src="/home/miguel/proyectos/livedoc/livedoc/assets/base.js"></script></head><body class="container"><h1>LiveDoc</h1>
+<p><a href="https://pypi.python.org/pypi/livedoc">LiveDoc</a> is the easiest way to maintain documentation up to date with code, because it allows to use the documentation as tests.</p>
+<h2>Basic usage</h2>
+<p>It allows to assign a value to a variable. For example, the simple command <code>[5](- 'a = TEXT')</code> has created the variable <code>a</code> with the value <span class="info">5</span>.</p>
+<p>Now you can check that variable <code>a</code> has the value of <span class="success">5</span> with just <code>[5](- 'a == TEXT')</code> expression. When the comparition fails, the output is verbose. For example, you can ensure <code>[4](- 'TEXT == a')</code>, resulting in <span class="failure"><span class="failure-expected">4</span><span> </span><span class="failure-result">5</span></span>.</p>
+<p>Additionally, you can print the <code>a</code> value just assigning its value to <code>OUT</code> variable, like <code>[ ](- 'OUT = a')</code>, which will show <span class="info">5</span></p>
+<h2>Tables</h2>
+<p>In order to create examples about usage, you can use tables. This is an easy way to show the difference between several inputs:</p>
+<table class="table table-condensed table-striped">
+<thead>
+<tr>
+<th>Factor 1</th>
+<th>Factor 2</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="info">2</span></td>
+<td><span class="info">2</span></td>
+<td><span class="success">4</span></td>
+</tr>
+<tr>
+<td><span class="info">3</span></td>
+<td><span class="info">3</span></td>
+<td><span class="success">9</span></td>
+</tr>
+<tr>
+<td><span class="info">4</span></td>
+<td><span class="info">4</span></td>
+<td><span class="success">16</span></td>
+</tr>
+<tr>
+<td><span class="info">5</span></td>
+<td><span class="info">5</span></td>
+<td><span class="success">25</span></td>
+</tr>
+</tbody>
+</table>
+<p>This can be done in the obvious way:</p>
+<pre><code>| Factor 1 | Factor 2 | Result |
+| --- | --- | --- |
+| [2](- 'f1=TEXT')  | [2](- 'f2=TEXT') | [4](-  'TEXT == f1*f2') |
+| [3](- 'f1=TEXT')  | [3](- 'f2=TEXT') | [9](-  'TEXT == f1*f2') |
+| [4](- 'f1=TEXT')  | [4](- 'f2=TEXT') | [16](- 'TEXT == f1*f2') |
+| [5](- 'f1=TEXT')  | [5](- 'f2=TEXT') | [25](- 'TEXT == f1*f2') |
+</code></pre>
+<p>But you can use shortcuts too to get the same:</p>
+<table class="table table-condensed table-striped">
+<thead>
+<tr>
+<th>Factor 1</th>
+<th>Factor 2</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="info">2</span></td>
+<td><span class="info">2</span></td>
+<td><span class="success">4</span></td>
+</tr>
+<tr>
+<td><span class="info">3</span></td>
+<td><span class="info">3</span></td>
+<td><span class="success">9</span></td>
+</tr>
+<tr>
+<td><span class="info">4</span></td>
+<td><span class="info">4</span></td>
+<td><span class="success">16</span></td>
+</tr>
+<tr>
+<td><span class="info">5</span></td>
+<td><span class="info">5</span></td>
+<td><span class="success">25</span></td>
+</tr>
+</tbody>
+</table>
+<p>just setting the titles instead of each cell:</p>
+<pre><code>| [Factor 1](- 'f1=TEXT') | [Factor 2](- 'f2=TEXT') | [Result](- 'TEXT == f1*f2') |
+| --- | --- | --- |
+| 2   | 2   | 4   |
+| 3   | 3   | 9   |
+| 4   | 4   | 16  |
+| 5   | 5   | 25  |
+</code></pre>
+<h2>Fixtures</h2>
+<p>You can add any code you want in order to be used in your documentation. It is as simple as adding a <code>.py</code> file with the same name than the documentation file. For example, this file is called <code>index.md</code>, so <a href="https://pypi.python.org/pypi/livedoc">LiveDoc</a> has loaded the file <code>index.py</code> in the same directory. This fixture contains a method that duplicates any number, and can be called whenever you want. For example, you can check that <code>[10](- 'TEXT == duplicate(5)')</code>: <span class="success">10</span></p>
+<h2>Exceptions</h2>
+<p>If an exceptions is raised, it is easy to discover it, like if you divide <span class="info">1</span> between <span class="info">0</span>, resulting in <button class="exception-button btn btn-default" onclick="toggle_visibility('cc1b12bd185c42ab8b9ceea53cfd1ad5');">The expression: `n/d` returned division by zero</button><span id="cc1b12bd185c42ab8b9ceea53cfd1ad5" class="exception"><span class="exception-text">The expression: `n/d` returned division by zero
+Traceback (most recent call last):
+  File "/home/miguel/proyectos/livedoc/livedoc/__init__.py", line 62, in process_element
+    expr.evaluate(self.variables, fixtures)
+  File "/home/miguel/proyectos/livedoc/livedoc/__init__.py", line 236, in evaluate
+    eval(self.expression, fixtures, variables)
+  File "&lt;string&gt;", line 1, in &lt;module&gt;
+ZeroDivisionError: division by zero
+
+
+Context:
+	OUT = 
+	TEXT = 'whatever'
+	a = 5
+	d = 0
+	f1 = 5
+	f2 = 5
+	n = 1</span></span>.</p>
+<p>It can happen inside a table too:</p>
+<table class="table table-condensed table-striped">
+<thead>
+<tr>
+<th>Numerator</th>
+<th>Denominator</th>
+<th>Division</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="info">2</span></td>
+<td><span class="info">1</span></td>
+<td><span class="success">2</span></td>
+</tr>
+<tr>
+<td><span class="info">2</span></td>
+<td><span class="info">0</span></td>
+<td><button class="exception-button btn btn-default" onclick="toggle_visibility('fbbdc61ccdc74cf9bf7d13905463a8bc');">The expression: `TEXT == n/d` returned division by zero</button><span id="fbbdc61ccdc74cf9bf7d13905463a8bc" class="exception"><span class="exception-text">The expression: `TEXT == n/d` returned division by zero
+Traceback (most recent call last):
+  File "/home/miguel/proyectos/livedoc/livedoc/__init__.py", line 62, in process_element
+    expr.evaluate(self.variables, fixtures)
+  File "/home/miguel/proyectos/livedoc/livedoc/__init__.py", line 193, in evaluate
+    self.right_result = eval(self.right, fixtures, variables)
+  File "&lt;string&gt;", line 1, in &lt;module&gt;
+ZeroDivisionError: division by zero
+
+
+Context:
+	OUT = 
+	TEXT = None
+	a = 5
+	d = 0
+	f1 = 5
+	f2 = 5
+	n = 2</span></span></td>
+</tr>
+<tr>
+<td><span class="info">2</span></td>
+<td><span class="info">-1</span></td>
+<td><span class="success">-2</span></td>
+</tr>
+</tbody>
+</table></body></html>
