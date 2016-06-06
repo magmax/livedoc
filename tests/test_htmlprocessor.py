@@ -78,3 +78,70 @@ class HtmlProcessorTest(unittest.TestCase):
             in result
         )
         assert 'Traceback (most recent call last):' in result
+
+    def test_basic_table_processing(self):
+        sut = HtmlProcessor()
+        result = sut.process_stream('''
+<table>
+  <thead>
+    <tr>
+      <th>a</th>
+    </tr>
+  </thead>
+  <tbody>
+      <td><a href="-" title="a=TEXT">5</a></td>
+  </tbody>
+</table>''')
+        assert sut.variables['a'] == 5
+
+    def test_table_preprocessing(self):
+        content = '''
+<table>
+  <thead>
+    <tr>
+      <th><a href="-" title="a=TEXT">a</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>'''.strip()
+        expected = '''
+<table>
+  <thead>
+    <tr>
+      <th>a</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="-" title="a=TEXT">5</a></td>
+    </tr>
+  </tbody>
+</table>'''.strip()
+        parser = etree.HTMLParser()
+        tree = etree.parse(StringIO(content), parser)
+        sut = HtmlProcessor()
+        sut._preprocess(tree)
+        result = etree.tostring(tree).decode()
+        assert expected in result
+
+
+    def test_short_table_processing(self):
+        sut = HtmlProcessor()
+        result = sut.process_stream('''
+<table>
+  <thead>
+    <tr>
+      <th><a href="-" title="a=TEXT">a</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>''')
+        assert sut.variables['a'] == 5
