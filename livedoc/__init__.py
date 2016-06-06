@@ -3,6 +3,7 @@ import tokenize
 import logging
 import uuid
 import traceback
+import copy
 from io import StringIO, BytesIO
 import markdown
 from lxml import etree
@@ -46,6 +47,7 @@ class HtmlProcessor(Processor):
         parser = etree.HTMLParser()
         tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
+        self._preprocess(tree)
         for a in tree.findall('//a[@href="-"]'):
             self.process_element(a)
             a.getparent().remove(a)
@@ -77,6 +79,32 @@ class HtmlProcessor(Processor):
 
     def split_expression(self, expression):
         return expression_factory(expression)
+
+    def _preprocess(self, tree):
+        for table in tree.findall('//table'):
+            head = table.find('thead')
+            body = table.find('tbody')
+            patterns = []
+            for row in head.findall('tr'):
+                for col in row.findall('th'):
+                    a = col.find('a[@href="-"]')
+                    if a is None:
+                        patterns.append(None)
+                        continue
+                    patterns.append(a)
+                    a.getparent().text = a.text
+                    a.getparent().remove(a)
+            if not any(x is not None for x in patterns):
+                continue
+            for row in body.findall('tr'):
+                for n, col in enumerate(row.findall('td')):
+                    pattern = patterns[n]
+                    if pattern is None:
+                        continue
+                    element = copy.deepcopy(pattern)
+                    element.text = col.text
+                    col.text = ''
+                    col.append(element)
 
     def _format_exception(self, anchor, expression, exception):
         msg = (
