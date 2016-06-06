@@ -81,7 +81,7 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_basic_table_processing(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('''
+        sut.process_stream('''
 <table>
   <thead>
     <tr>
@@ -128,10 +128,9 @@ class HtmlProcessorTest(unittest.TestCase):
         result = etree.tostring(tree).decode()
         assert expected in result
 
-
     def test_short_table_processing(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('''
+        sut.process_stream('''
 <table>
   <thead>
     <tr>
@@ -148,7 +147,7 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_short_table_processing_with_empty_patterns(self):
         sut = HtmlProcessor()
-        result = sut.process_stream('''
+        sut.process_stream('''
 <table>
   <thead>
     <tr>

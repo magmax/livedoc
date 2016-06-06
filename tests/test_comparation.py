@@ -23,6 +23,7 @@ class ComparationOperatorEqualTest(unittest.TestCase):
         sut.evaluate({})
         assert sut.success
 
+
 class ComparationOperatorDistinctTest(unittest.TestCase):
     def test_equal(self):
         sut = Comparation('5', '5', '!=')
