@@ -74,10 +74,16 @@ Roadmap
 =======
 
 - **0.2.0**: fixture load
-- **0.3.0**: python 2.X support
-- **0.4.0**: advanced fixtures
-- **0.5.0**: junit reports
-- **0.6.0**: Improve style on errors
+- **0.3.0**: advanced fixtures
+- **0.4.0**: junit reports
+
+FAQ
+===
+
+Does LiveDoc support python 2?
+------------------------------
+
+No. Python 2 is deprecated and will be retired on 2020, so please, move on to Python 3.
 
 
 .. |travis| image:: https://img.shields.io/travis/magmax/livedoc.svg
