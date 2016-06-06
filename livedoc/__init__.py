@@ -47,17 +47,20 @@ class HtmlProcessor(Processor):
         tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
         for a in tree.findall('//a[@href="-"]'):
-            expression = a.attrib.get('title')
-            self.variables['TEXT'] = a.text
-            self.variables['OUT'] = ''
-            expr = self.split_expression(expression)
-            try:
-                expr.evaluate(self.variables)
-                a.addnext(expr.xml)
-            except Exception as e:
-                self._format_exception(a, expr, e)
+            self.process_element(a)
             a.getparent().remove(a)
         return etree.tostring(tree).decode()
+
+    def process_element(self, a):
+        expression = a.attrib.get('title')
+        self.variables['TEXT'] = a.text
+        self.variables['OUT'] = ''
+        expr = self.split_expression(expression)
+        try:
+            expr.evaluate(self.variables)
+            a.addnext(expr.xml)
+        except Exception as e:
+            self._format_exception(a, expr, e)
 
     def headers(self):
         head = etree.Element('head')
