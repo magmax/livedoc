@@ -195,10 +195,9 @@ class Comparation(Expression):
         self.text = variables.get('TEXT')
 
     def _operate(self):
-        if self.operator == '==':
-            l = self.autotype(self.left_result)
-            r = self.autotype(self.right_result)
-            return l == r
+        l = self.autotype(self.left_result)
+        r = self.autotype(self.right_result)
+        return eval("%s %s %s" % (l, self.operator, r))
 
     @property
     def decorator(self):
