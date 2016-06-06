@@ -55,31 +55,7 @@ class HtmlProcessor(Processor):
                 expr.evaluate(self.variables)
                 a.addnext(expr.xml)
             except Exception as e:
-                id = uuid.uuid4().hex
-                button = etree.Element("button")
-                button.attrib['class'] = "exception-button"
-                button.attrib['onclick'] = "toggle_visibility('%s');" % id
-                button.text = (
-                    "The expression: `%s` returned %s"
-                    % (str(expr), str(e))
-                )
-                a.addnext(button)
-                span = etree.Element("span")
-                span.attrib['id'] = id
-                span.attrib['class'] = 'exception'
-                button.addnext(span)
-                item = etree.Element("span")
-                variables = '\n'.join(
-                    '\t%s = %s' % (k, self.variables[k])
-                    for k in sorted(self.variables)
-                    if not k.startswith('__')
-                )
-                item.text = (
-                    "The expression: `%s` returned %s\n%s\n\nContext:\n%s"
-                    % (str(expr), str(e), traceback.format_exc(), variables)
-                )
-                item.attrib['class'] = 'exception-text'
-                span.append(item)
+                self._format_exception(a, expr, e)
             a.getparent().remove(a)
         return etree.tostring(tree).decode()
 
@@ -98,6 +74,34 @@ class HtmlProcessor(Processor):
 
     def split_expression(self, expression):
         return expression_factory(expression)
+
+    def _format_exception(self, anchor, expression, exception):
+        msg = (
+            "The expression: `%s` returned %s"
+            % (str(expression), str(exception))
+        )
+        id = uuid.uuid4().hex
+        button = etree.Element("button")
+        button.attrib['class'] = "exception-button"
+        button.attrib['onclick'] = "toggle_visibility('%s');" % id
+        button.text = msg
+        anchor.addnext(button)
+        span = etree.Element("span")
+        span.attrib['id'] = id
+        span.attrib['class'] = 'exception'
+        button.addnext(span)
+        item = etree.Element("span")
+        variables = '\n'.join(
+            '\t%s = %s' % (k, self.variables[k])
+            for k in sorted(self.variables)
+            if not k.startswith('__')
+        )
+        item.text = (
+            "%s\n%s\n\nContext:\n%s"
+            % (msg, traceback.format_exc(), variables)
+        )
+        item.attrib['class'] = 'exception-text'
+        span.append(item)
 
 
 class Expression(object):
