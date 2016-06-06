@@ -69,9 +69,14 @@ class HtmlProcessor(Processor):
                 span.attrib['class'] = 'exception'
                 button.addnext(span)
                 item = etree.Element("span")
+                variables = '\n'.join(
+                    '\t%s = %s' % (k, self.variables[k])
+                    for k in sorted(self.variables)
+                    if not k.startswith('__')
+                )
                 item.text = (
-                    "The expression: `%s` returned %s\n%s"
-                    % (str(expr), str(e), traceback.format_exc())
+                    "The expression: `%s` returned %s\n%s\n\nContext:\n%s"
+                    % (str(expr), str(e), traceback.format_exc(), variables)
                 )
                 item.attrib['class'] = 'exception-text'
                 span.append(item)
@@ -111,7 +116,7 @@ class Expression(object):
         for t in (int, float, str):
             try:
                 return t(value)
-            except ValueError as e:
+            except ValueError:
                 pass
         return value
 
@@ -156,7 +161,9 @@ class Comparation(Expression):
 
     def _operate(self):
         if self.operator == '==':
-            return self.autotype(self.left_result) == self.autotype(self.right_result)
+            l = self.autotype(self.left_result)
+            r = self.autotype(self.right_result)
+            return l == r
 
     @property
     def decorator(self):
