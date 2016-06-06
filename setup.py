@@ -87,7 +87,7 @@ setup(
         'lxml      == 3.6.0',
         'pyyaml    == 3.11',
         'cssselect == 0.9.1',
-        'decorate  >= 0.0.0',
+        'decorate  >= 0.0.17',
     ],
     entry_points={
         'console_scripts': [

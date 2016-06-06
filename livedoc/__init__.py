@@ -1,6 +1,8 @@
 import os
 import tokenize
 import logging
+import uuid
+import traceback
 from io import StringIO, BytesIO
 import markdown
 from lxml import etree
@@ -53,17 +55,26 @@ class HtmlProcessor(Processor):
                 expr.evaluate(self.variables)
                 a.addnext(expr.xml)
             except Exception as e:
-                span = etree.Element("span")
-                a.addnext(span)
-                span.attrib['class'] = 'exception'
-                item = etree.Element("pre")
-                item.text = (
+                id = uuid.uuid4().hex
+                button = etree.Element("button")
+                button.attrib['class'] = "exception-button"
+                button.attrib['onclick'] = "toggle_visibility('%s');" % id
+                button.text = (
                     "The expression: `%s` returned %s"
                     % (str(expr), str(e))
                 )
-                item.attrib['class'] = 'exception'
-                # TODO: add here the variable list as hidden control
-                span.addnext(item)
+                a.addnext(button)
+                span = etree.Element("span")
+                span.attrib['id'] = id
+                span.attrib['class'] = 'exception'
+                button.addnext(span)
+                item = etree.Element("span")
+                item.text = (
+                    "The expression: `%s` returned %s\n%s"
+                    % (str(expr), str(e), traceback.format_exc())
+                )
+                item.attrib['class'] = 'exception-text'
+                span.append(item)
             a.getparent().remove(a)
         return etree.tostring(tree).decode()
 
@@ -187,6 +198,9 @@ class Call(Expression):
         span.attrib['class'] = 'info'
         span.text = str(self.expression)
         return span
+
+    def __str__(self):
+        return self.expression
 
 
 class Print(Expression):

@@ -32,6 +32,9 @@ def main():
     decorator.add_css(
         pkg_resources.resource_filename('livedoc', 'assets/base.css')
     )
+    decorator.add_js(
+        pkg_resources.resource_filename('livedoc', 'assets/base.js')
+    )
     livedoc = LiveDoc(decorator=decorator)
     livedoc.process(args.source, args.output)
 

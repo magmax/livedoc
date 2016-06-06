@@ -16,4 +16,12 @@
 
 .exception {
     background-color: #E97931;
+    display: none;
+
+    unicode-bidi: embed;
+    font-family: monospace;
+    white-space: pre;
+}
+.exception-button {
+    background-color: #E97931;
 }
