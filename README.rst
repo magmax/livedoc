@@ -86,7 +86,7 @@ Does LiveDoc support python 2?
 No. Python 2 is deprecated and will be retired on 2020, so please, move on to Python 3.
 
 
-.. |travis| image:: https://img.shields.io/travis/magmax/livedoc.svg
+.. |travis| image:: https://img.shields.io/travis/magmax/livedoc/master.svg
   :target: `Travis`_
   :alt: Travis results
 
