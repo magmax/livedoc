@@ -227,6 +227,7 @@ class Comparation(Expression):
     def __str__(self):
         return "%s %s %s" % (self.left, self.operator, self.right)
 
+
 class Call(Expression):
     def __init__(self, expression):
         super().__init__()
