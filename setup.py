@@ -6,8 +6,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
-version = (0, 0, 1)
-str_version = '.'.join(str(v) for v in version)
+version = "0.2.0"
 
 
 def read_file(filename):
@@ -40,7 +39,7 @@ class PyTest(TestCommand):
 
 setup(
     name='livedoc',
-    version=str_version,
+    version=version,
     description="Transforms tests in documentation, and viceversa",
     long_description=read_file('README.rst'),
     cmdclass={'test': PyTest},
