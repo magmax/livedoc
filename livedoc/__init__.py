@@ -181,7 +181,7 @@ class Assignment(Expression):
         return span
 
 
-class Comparation(Expression):
+class Comparison(Expression):
     def __init__(self, left, right, operator):
         super().__init__()
         self.left = left
@@ -277,7 +277,7 @@ def expression_factory(expression):
                 else:
                     return Assignment(l, r)
             elif token.string not in '+-*/%!()[]{}':
-                return Comparation(l, r, token.string)
+                return Comparison(l, r, token.string)
     return Call(expression)
 
 

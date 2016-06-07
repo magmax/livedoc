@@ -1,5 +1,5 @@
 import unittest
-from livedoc import expression_factory, Print, Assignment, Comparation, Call
+from livedoc import expression_factory, Print, Assignment, Comparison, Call
 
 
 class ExpressionFactoryTest(unittest.TestCase):
@@ -10,7 +10,7 @@ class ExpressionFactoryTest(unittest.TestCase):
         assert type(expression_factory("OUT = 3")) == Print
 
     def test_simple_comparation(self):
-        assert type(expression_factory("4 == 3")) == Comparation
+        assert type(expression_factory("4 == 3")) == Comparison
 
     def test_simple_call(self):
         assert type(expression_factory("whatever()")) == Call

@@ -1,110 +1,110 @@
 import unittest
-from livedoc import Comparation
+from livedoc import Comparison
 
 
-class ComparationOperatorEqualTest(unittest.TestCase):
+class ComparisonOperatorEqualTest(unittest.TestCase):
     def test_equal(self):
-        sut = Comparation('5', '5', '==')
+        sut = Comparison('5', '5', '==')
         sut.evaluate({}, {})
         assert sut.success
 
     def test_not_equal(self):
-        sut = Comparation('5', '10', '==')
+        sut = Comparison('5', '10', '==')
         sut.evaluate({}, {})
         assert not sut.success
 
     def test_different_types(self):
-        sut = Comparation('5', '"5"', '==')
+        sut = Comparison('5', '"5"', '==')
         sut.evaluate({}, {})
         assert sut.success
 
     def test_different_types_conmutative(self):
-        sut = Comparation('"5"', '5', '==')
+        sut = Comparison('"5"', '5', '==')
         sut.evaluate({}, {})
         assert sut.success
 
 
-class ComparationOperatorDistinctTest(unittest.TestCase):
+class ComparisonOperatorDistinctTest(unittest.TestCase):
     def test_equal(self):
-        sut = Comparation('5', '5', '!=')
+        sut = Comparison('5', '5', '!=')
         sut.evaluate({}, {})
         assert not sut.success
 
     def test_not_equal(self):
-        sut = Comparation('5', '10', '!=')
+        sut = Comparison('5', '10', '!=')
         sut.evaluate({}, {})
         assert sut.success
 
 
-class ComparationOperatorLtTest(unittest.TestCase):
+class ComparisonOperatorLtTest(unittest.TestCase):
     def test_against_greater(self):
-        sut = Comparation('5', '10', '<')
+        sut = Comparison('5', '10', '<')
         sut.evaluate({}, {})
         assert sut.success
 
     def test_against_lower(self):
-        sut = Comparation('5', '1', '<')
+        sut = Comparison('5', '1', '<')
         sut.evaluate({}, {})
         assert not sut.success
 
     def test_against_equal(self):
-        sut = Comparation('5', '5', '<')
+        sut = Comparison('5', '5', '<')
         sut.evaluate({}, {})
         assert not sut.success
 
 
-class ComparationOperatorLeTest(unittest.TestCase):
+class ComparisonOperatorLeTest(unittest.TestCase):
     def test_against_greater(self):
-        sut = Comparation('5', '10', '<=')
+        sut = Comparison('5', '10', '<=')
         sut.evaluate({}, {})
         assert sut.success
 
     def test_against_lower(self):
-        sut = Comparation('5', '1', '<=')
+        sut = Comparison('5', '1', '<=')
         sut.evaluate({}, {})
         assert not sut.success
 
     def test_against_equal(self):
-        sut = Comparation('5', '5', '<=')
+        sut = Comparison('5', '5', '<=')
         sut.evaluate({}, {})
         assert sut.success
 
 
-class ComparationOperatorGtTest(unittest.TestCase):
+class ComparisonOperatorGtTest(unittest.TestCase):
     def test_against_greater(self):
-        sut = Comparation('15', '5', '>')
+        sut = Comparison('15', '5', '>')
         sut.evaluate({}, {})
         assert sut.success
 
     def test_against_lower(self):
-        sut = Comparation('5', '15', '>')
+        sut = Comparison('5', '15', '>')
         sut.evaluate({}, {})
         assert not sut.success
 
     def test_against_equal(self):
-        sut = Comparation('5', '5', '>')
+        sut = Comparison('5', '5', '>')
         sut.evaluate({}, {})
         assert not sut.success
 
 
-class ComparationOperatorGeTest(unittest.TestCase):
+class ComparisonOperatorGeTest(unittest.TestCase):
     def test_against_greater(self):
-        sut = Comparation('15', '5', '>=')
+        sut = Comparison('15', '5', '>=')
         sut.evaluate({}, {})
         assert sut.success
 
     def test_against_lower(self):
-        sut = Comparation('5', '15', '>=')
+        sut = Comparison('5', '15', '>=')
         sut.evaluate({}, {})
         assert not sut.success
 
     def test_against_equal(self):
-        sut = Comparation('5', '5', '>=')
+        sut = Comparison('5', '5', '>=')
         sut.evaluate({}, {})
         assert sut.success
 
 
-class ComparationStringTest(unittest.TestCase):
+class ComparisonStringTest(unittest.TestCase):
     def test_to_string(self):
-        sut = Comparation('5', '5', '>=')
+        sut = Comparison('5', '5', '>=')
         assert str(sut) == '5 >= 5'
