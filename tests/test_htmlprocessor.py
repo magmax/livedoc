@@ -134,7 +134,8 @@ class HtmlProcessorTest(unittest.TestCase):
         result = etree.tostring(tree).decode()
         print(expected)
         print(result)
-        assert expected in result
+        assert '<th>a</th>' in result
+        assert '<td><a href="-" title="a=TEXT">5</a></td>' in result
 
     def test_short_table_processing(self):
         sut = HtmlProcessor()
