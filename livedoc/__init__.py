@@ -148,12 +148,14 @@ class Expression(object):
         raise NotImplementedError()
 
     def autotype(self, value):
+        for t in (int, float):
+            if isinstance(value, t):
+                return value
         for t in (int, float, str):
             try:
                 return t(value)
             except ValueError:
                 pass
-        return value
 
 
 class Assignment(Expression):
@@ -198,10 +200,6 @@ class Comparation(Expression):
         l = self.autotype(self.left_result)
         r = self.autotype(self.right_result)
         return eval("%s %s %s" % (l, self.operator, r), {}, {})
-
-    @property
-    def decorator(self):
-        return 'success' if self.success else 'failure'
 
     @property
     def xml(self):

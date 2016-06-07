@@ -102,3 +102,9 @@ class ComparationOperatorGeTest(unittest.TestCase):
         sut = Comparation('5', '5', '>=')
         sut.evaluate({}, {})
         assert sut.success
+
+
+class ComparationStringTest(unittest.TestCase):
+    def test_to_string(self):
+        sut = Comparation('5', '5', '>=')
+        assert str(sut) == '5 >= 5'
