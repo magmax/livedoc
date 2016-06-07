@@ -230,19 +230,32 @@ class Call(Expression):
     def __init__(self, expression):
         super().__init__()
         self.expression = expression
+        self.result = None
 
     def evaluate(self, variables, fixtures):
-        eval(self.expression, fixtures, variables)
+        self.result = eval(self.expression, fixtures, variables)
 
     @property
     def xml(self):
         span = etree.Element('span')
-        span.attrib['class'] = 'info'
-        span.text = str(self.expression)
+        span.attrib['class'] = 'call'
+        inner1 = etree.Element('span')
+        inner1.attrib['class'] = 'call-expression'
+        inner1.text = str(self.expression)
+        span.append(inner1)
+        inner2 = etree.Element('span')
+        inner2.attrib['class'] = 'call-sep'
+        inner2.text = str(self.result)
+        span.append(inner2)
+        inner2 = etree.Element('span')
+        inner2.attrib['class'] = 'call-result'
+        inner2.text = str(self.result)
+        span.append(inner2)
+
         return span
 
     def __str__(self):
-        return self.expression
+        return "%s => %s" % (self.expression, self.result)
 
 
 class Print(Expression):
