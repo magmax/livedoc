@@ -228,6 +228,7 @@ class Comparison(Expression):
 
 class Call(Expression):
     css_class = 'call'
+
     def __init__(self, expression):
         super().__init__()
         self.expression = expression
@@ -261,6 +262,7 @@ class Call(Expression):
 
 class Print(Call):
     css_class = 'print'
+
     def __init__(self, expression):
         super().__init__(expression)
 
