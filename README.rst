@@ -73,7 +73,6 @@ But this is hard to be written and read, so it can be simplified by using Markdo
 Roadmap
 =======
 
-- **0.2.0**: fixture load
 - **0.3.0**: advanced fixtures
 - **0.4.0**: junit reports
 

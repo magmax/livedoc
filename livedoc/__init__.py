@@ -151,11 +151,12 @@ class Expression(object):
         for t in (int, float):
             if isinstance(value, t):
                 return value
-        for t in (int, float, str):
+        for t in (int, float):
             try:
                 return t(value)
             except ValueError:
                 pass
+        return str(value)
 
 
 class Assignment(Expression):
