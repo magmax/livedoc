@@ -227,6 +227,7 @@ class Comparison(Expression):
 
 
 class Call(Expression):
+    css_class = 'call'
     def __init__(self, expression):
         super().__init__()
         self.expression = expression
@@ -238,17 +239,17 @@ class Call(Expression):
     @property
     def xml(self):
         span = etree.Element('span')
-        span.attrib['class'] = 'call'
+        span.attrib['class'] = self.css_class
         inner1 = etree.Element('span')
-        inner1.attrib['class'] = 'call-expression'
+        inner1.attrib['class'] = '%s-expression' % self.css_class
         inner1.text = str(self.expression)
         span.append(inner1)
         inner2 = etree.Element('span')
-        inner2.attrib['class'] = 'call-sep'
+        inner2.attrib['class'] = '%s-sep' % self.css_class
         inner2.text = str(self.result)
         span.append(inner2)
         inner2 = etree.Element('span')
-        inner2.attrib['class'] = 'call-result'
+        inner2.attrib['class'] = '%s-result' % self.css_class
         inner2.text = str(self.result)
         span.append(inner2)
 
@@ -258,25 +259,10 @@ class Call(Expression):
         return "%s => %s" % (self.expression, self.result)
 
 
-class Print(Expression):
+class Print(Call):
+    css_class = 'print'
     def __init__(self, expression):
-        super().__init__()
-        self.expression = expression
-        self.result = None
-
-    def evaluate(self, variables, fixtures):
-        self.result = eval(self.expression, fixtures, variables)
-
-    @property
-    def output(self):
-        return self.result
-
-    @property
-    def xml(self):
-        span = etree.Element('span')
-        span.attrib['class'] = 'info'
-        span.text = str(self.result)
-        return span
+        super().__init__(expression)
 
 
 def expression_factory(expression):

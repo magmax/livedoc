@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 from io import StringIO
 from lxml import etree
 from livedoc import HtmlProcessor
@@ -35,24 +36,19 @@ class HtmlProcessorTest(unittest.TestCase):
             for x in root[0].findall('meta')
         )
 
-    def test_basic_assignment(self):
+    @mock.patch('livedoc.Assignment')
+    def test_basic_assignment(self, mock_assignment):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="foo = TEXT">bar</a>',
-                                    {})
-        assert sut.variables['foo'] == 'bar'
-        assert '<span class="info">bar</span>' in result
+        sut.process_stream('<a href="-" title="foo = TEXT">bar</a>', {})
+        assert mock_assignment.called_once_with('foo', 'bar')
+        assert mock_assignment.evaluate.called_once_with({}, {})
 
-    def test_basic_echo(self):
+    @mock.patch('livedoc.Print')
+    def test_basic_echo(self, mock_print):
         sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="OUT = \'foo\'"></a>',
-                                    {})
-        assert '<span class="info">foo</span>' in result
-
-    def test_basic_append(self):
-        sut = HtmlProcessor()
-        result = sut.process_stream('<a href="-" title="OUT=\'foo\'">bar</a>',
-                                    {})
-        assert '<span class="info">foo</span>' in result
+        sut.process_stream('<a href="-" title="OUT = \'foo\'"></a>', {})
+        assert mock_print.called_once_with("'foo'")
+        assert mock_print.evaluate.called_once_with({}, {})
 
     def test_basic_check_success(self):
         sut = HtmlProcessor()
