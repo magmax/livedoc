@@ -248,7 +248,7 @@ class Call(Expression):
         span.append(inner1)
         inner2 = etree.Element('span')
         inner2.attrib['class'] = '%s-sep' % self.css_class
-        inner2.text = str(self.result)
+        inner2.text = ' '
         span.append(inner2)
         inner2 = etree.Element('span')
         inner2.attrib['class'] = '%s-result' % self.css_class

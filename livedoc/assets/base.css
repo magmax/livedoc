@@ -22,6 +22,15 @@
     font-family: monospace;
     white-space: pre;
 }
+
 .exception-button {
     background-color: #FFC9A6;
+}
+
+.print-expression, .print-sep, .call-expression, .call-sep {
+    display: none;
+}
+
+.print-result, .call-result {
+    background-color: #DAEAFC;
 }
