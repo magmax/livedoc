@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
-version = "0.3.0"
+version = "0.3.1"
 
 
 def read_file(filename):
