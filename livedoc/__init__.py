@@ -153,7 +153,7 @@ class Expression(object):
                 return value
         for t in (int, float):
             try:
-                return t(value)
+                return t(value.strip('\'"'))
             except ValueError:
                 pass
         return str(value)
@@ -200,7 +200,7 @@ class Comparison(Expression):
     def _operate(self, fixtures):
         l = self.autotype(self.left_result)
         r = self.autotype(self.right_result)
-        return eval("%s %s %s" % (l, self.operator, r), {}, {})
+        return eval("l %s r" % self.operator, {'l': l, 'r': r})
 
     @property
     def xml(self):

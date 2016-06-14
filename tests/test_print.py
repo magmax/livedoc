@@ -21,7 +21,7 @@ class PrintTest(unittest.TestCase):
         assert xml == (
             '<span class="print">'
             '<span class="print-expression">isinstance(1, int)</span>'
-            '<span class="print-sep">True</span>'
+            '<span class="print-sep"> </span>'
             '<span class="print-result">True</span>'
             '</span>'
         )
