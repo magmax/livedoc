@@ -4,12 +4,17 @@ from livedoc import LiveDoc
 from decorate import Decorate
 import pkg_resources
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)-15s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    )
 logger = logging.getLogger(__name__)
+
+
+def configure_logging(level):
+    LOG_LEVELS = [logging.WARNING, logging.INFO, logging.DEBUG]
+    log_level = LOG_LEVELS[min(level, len(LOG_LEVELS) - 1)]
+    logging.basicConfig(
+        level=log_level,
+        format='[%(asctime)-15s] %(levelname)s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+    )
 
 
 def main():
@@ -27,7 +32,14 @@ def main():
         default="bootstrap",
         help="Theme to be used."
     )
+    parser.add_argument(
+        '-v', '--verbose',
+        action='count',
+        default=0,
+        help="Increase verbosity."
+    )
     args = parser.parse_args()
+    configure_logging(args.verbose)
     decorator = Decorate(args.theme)
     decorator.add_css(
         pkg_resources.resource_filename('livedoc', 'assets/base.css')

@@ -5,7 +5,7 @@ import tempfile
 from livedoc import LiveDoc
 
 
-class LivedocTest(unittest.TestCase):
+class LivedocCallsTest(unittest.TestCase):
     def test_example1(self):
         processor = mock.Mock()
         processor.test = mock.Mock(return_value=True)

@@ -1,4 +1,5 @@
 import os
+import time
 import tokenize
 import logging
 import uuid
@@ -307,9 +308,11 @@ class LiveDoc(object):
 
     def process(self, source, target):
         logger.info('Starting to process %s into %s', source, target)
+        start = time.time()
         self.process_directory(source, target)
         if self.decorator:
             self.decorator.copy_assets(target)
+        logger.info('Finished in %.4f seconds' % (time.time() - start))
 
     def process_directory(self, source, target):
         for filename in os.listdir(source):
