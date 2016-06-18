@@ -1,5 +1,5 @@
 import unittest
-from livedoc import Comparison
+from livedoc.expressions import Comparison
 
 
 class ComparisonOperatorEqualTest(unittest.TestCase):

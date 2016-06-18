@@ -1,5 +1,11 @@
 import unittest
-from livedoc import expression_factory, Print, Assignment, Comparison, Call
+from livedoc.expressions import (
+    expression_factory,
+    Print,
+    Assignment,
+    Comparison,
+    Call,
+)
 
 
 class ExpressionFactoryTest(unittest.TestCase):

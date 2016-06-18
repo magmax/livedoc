@@ -1,6 +1,6 @@
 import unittest
 import pytest
-from livedoc import Processor
+from livedoc.processors import Processor
 
 
 class CopyProcessorTest(unittest.TestCase):

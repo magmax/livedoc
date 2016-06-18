@@ -2,7 +2,7 @@ import unittest
 from unittest import mock
 from io import StringIO
 from lxml import etree
-from livedoc import HtmlProcessor
+from livedoc.processors import HtmlProcessor
 
 
 class HtmlProcessorTest(unittest.TestCase):
@@ -36,14 +36,14 @@ class HtmlProcessorTest(unittest.TestCase):
             for x in root[0].findall('meta')
         )
 
-    @mock.patch('livedoc.Assignment')
+    @mock.patch('livedoc.expressions.Assignment')
     def test_basic_assignment(self, mock_assignment):
         sut = HtmlProcessor()
         sut.process_stream('<a href="-" title="foo = TEXT">bar</a>', {})
         assert mock_assignment.called_once_with('foo', 'bar')
         assert mock_assignment.evaluate.called_once_with({}, {})
 
-    @mock.patch('livedoc.Print')
+    @mock.patch('livedoc.expressions.Print')
     def test_basic_echo(self, mock_print):
         sut = HtmlProcessor()
         sut.process_stream('<a href="-" title="OUT = \'foo\'"></a>', {})

@@ -1,5 +1,5 @@
 import unittest
-from livedoc import Expression
+from livedoc.expressions import Expression
 
 
 class ExpressionAbstractTest(unittest.TestCase):

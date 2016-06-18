@@ -1,5 +1,5 @@
 import unittest
-from livedoc import Call
+from livedoc.expressions import Call
 from lxml import etree
 
 

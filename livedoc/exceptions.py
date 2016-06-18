@@ -1,0 +1,2 @@
+class LiveDocException(Exception):
+    pass

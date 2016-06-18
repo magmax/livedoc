@@ -73,8 +73,8 @@ But this is hard to be written and read, so it can be simplified by using Markdo
 Roadmap
 =======
 
-- **0.4.0**: advanced fixtures
-- **0.5.0**: junit reports
+- **0.4.0**: junit reports
+- **0.5.0**: advanced fixtures
 
 FAQ
 ===
