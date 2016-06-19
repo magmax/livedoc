@@ -1,9 +1,13 @@
 import tokenize
 from io import BytesIO
 from lxml import etree
+from .reports import Report
 
 
 class Expression(object):
+    def __init__(self, report=None):
+        self.report = report or Report()
+
     def evaluate(self, variables, fixtures):
         raise NotImplementedError()
 
@@ -28,8 +32,8 @@ class Expression(object):
 
 
 class Assignment(Expression):
-    def __init__(self, left, right):
-        super().__init__()
+    def __init__(self, left, right, **kwargs):
+        super().__init__(**kwargs)
         self.left = left
         self.right = right
         self.result = None
@@ -38,6 +42,8 @@ class Assignment(Expression):
         r = eval(self.right, fixtures, variables)
         self.result = self.autotype(r)
         variables[self.left] = self.result
+        if self._setting_testname:
+            self.report.test_name(self.result)
 
     def __str__(self):
         return self.right
@@ -45,17 +51,23 @@ class Assignment(Expression):
     @property
     def xml(self):
         span = etree.Element('span')
-        span.attrib['class'] = 'info'
+        if not self._setting_testname:
+            span.attrib['class'] = 'info'
         span.text = str(self.result)
         return span
 
+    @property
+    def _setting_testname(self):
+        return self.left.strip() == 'TESTNAME'
+
 
 class Comparison(Expression):
-    def __init__(self, left, right, operator):
-        super().__init__()
+    def __init__(self, left, right, operator, **kwargs):
+        super().__init__(**kwargs)
         self.left = left
         self.right = right
         self.operator = operator
+        self.expression = "%s %s %s" % (left, operator, right)
         self.success = False
         self.text = None
 
@@ -68,7 +80,13 @@ class Comparison(Expression):
     def _operate(self, fixtures):
         l = self.autotype(self.left_result)
         r = self.autotype(self.right_result)
-        return eval("l %s r" % self.operator, {'l': l, 'r': r})
+        result = eval("l %s r" % self.operator, {'l': l, 'r': r})
+        self.report.add_comparison(
+            self.expression,
+            '%s %s %s' % (l, self.operator, r),
+            result
+        )
+        return result
 
     @property
     def xml(self):
@@ -98,8 +116,8 @@ class Comparison(Expression):
 class Call(Expression):
     css_class = 'call'
 
-    def __init__(self, expression):
-        super().__init__()
+    def __init__(self, expression, **kwargs):
+        super().__init__(**kwargs)
         self.expression = expression
         self.result = None
 
@@ -132,20 +150,20 @@ class Call(Expression):
 class Print(Call):
     css_class = 'print'
 
-    def __init__(self, expression):
-        super().__init__(expression)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
-def expression_factory(expression):
+def expression_factory(expression, report=None):
     for token in tokenize.tokenize(BytesIO(expression.encode()).readline):
         if token.type == tokenize.OP:
             l = token.line[0:token.start[1]].strip()
             r = token.line[token.end[1]:].strip()
             if token.string == '=':
                 if l == 'OUT':
-                    return Print(r)
+                    return Print(r, report=report)
                 else:
-                    return Assignment(l, r)
+                    return Assignment(l, r, report=report)
             elif token.string not in '+-*/%!()[]{}':
-                return Comparison(l, r, token.string)
-    return Call(expression)
+                return Comparison(l, r, token.string, report=report)
+    return Call(expression, report=report)

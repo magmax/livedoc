@@ -9,6 +9,9 @@ from .expressions import expression_factory
 
 
 class Processor(object):
+    def __init__(self, report=None):
+        self.report = report
+
     def test(self, filename):
         raise NotImplementedError('Abstract method')
 
@@ -25,9 +28,9 @@ class CopyProcessor(Processor):
 
 
 class HtmlProcessor(Processor):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.variables = {'__builtins__': {}}
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def test(self, filename):
         return filename.lower().endswith(('html', 'htm'))
@@ -67,9 +70,25 @@ class HtmlProcessor(Processor):
         return head
 
     def split_expression(self, expression):
-        return expression_factory(expression)
+        return expression_factory(expression, self.report)
 
     def _preprocess(self, tree):
+        self._preprocess_titles(tree)
+        self._preprocess_tables(tree)
+
+    def _preprocess_titles(self, tree):
+        for i in range(1, 8):
+            for title in tree.findall('//h%d' % i):
+                link = etree.Element("a")
+                link.attrib['href'] = '-'
+                link.attrib['title'] = (
+                    'TESTNAME = "%s"'
+                    % title.text.replace('"', '\\\\"')
+                )
+                title.text = ''
+                title.append(link)
+
+    def _preprocess_tables(self, tree):
         for table in tree.findall('//table'):
             head = table.find('thead')
             body = table.find('tbody')
@@ -96,6 +115,7 @@ class HtmlProcessor(Processor):
                     col.append(element)
 
     def _format_exception(self, anchor, expression, exception):
+        self.report.add_exception(expression, exception)
         msg = (
             "The expression: `%s` returned %s"
             % (str(expression), str(exception))

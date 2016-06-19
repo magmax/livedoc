@@ -9,6 +9,7 @@ from .processors import (
     HtmlProcessor,
     CopyProcessor,
 )
+from livedoc.reports import Report
 
 __ALL__ = ['LiveDoc']
 
@@ -17,18 +18,22 @@ logger = logging.getLogger(__name__)
 
 
 class LiveDoc(object):
-    def __init__(self, processors=None, decorator=None):
+    def __init__(self, processors=None, decorator=None, report=None):
         self.decorator = decorator
+        self.report = report or Report()
         self.processors = processors or [
-            MarkdownProcessor(),
-            HtmlProcessor(),
-            CopyProcessor(),
+            MarkdownProcessor(self.report),
+            HtmlProcessor(self.report),
+            CopyProcessor(self.report),
         ]
 
     def process(self, source, target):
         logger.info('Starting to process %s into %s', source, target)
         start = time.time()
-        self.process_directory(source, target)
+        if os.path.isdir(source):
+            self.process_directory(source, target)
+        else:
+            self.process_file(source, target)
         if self.decorator:
             self.decorator.copy_assets(target)
         logger.info('Finished in %.4f seconds' % (time.time() - start))
@@ -50,6 +55,7 @@ class LiveDoc(object):
         if source.endswith(('~', '.py')):
             return
         logger.info('Processing file %s into %s', source, target)
+        self.report.test_file(source)
         processor = self.choose_processor(source)
         fixtures = self._load_fixtures(source)
         directory = os.path.dirname(target)
@@ -63,6 +69,7 @@ class LiveDoc(object):
 
         with open(target, 'w+') as fd:
             fd.write(content)
+        self.report.file_finish()
 
     def choose_processor(self, path):
         for processor in self.processors:

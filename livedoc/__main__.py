@@ -1,6 +1,8 @@
 import argparse
 import logging
 from livedoc import LiveDoc
+from livedoc.reports import Report, ConsoleReporter
+
 from decorate import Decorate
 import pkg_resources
 
@@ -47,9 +49,11 @@ def main():
     decorator.add_js(
         pkg_resources.resource_filename('livedoc', 'assets/base.js')
     )
-    livedoc = LiveDoc(decorator=decorator)
+    report = Report()
+    report.register(ConsoleReporter())
+    livedoc = LiveDoc(decorator=decorator, report=report)
     livedoc.process(args.source, args.output)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # NOQA
     main()
