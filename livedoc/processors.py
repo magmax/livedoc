@@ -6,11 +6,12 @@ import markdown
 from lxml import etree
 
 from .expressions import expression_factory
+from .reports import Report
 
 
 class Processor(object):
     def __init__(self, report=None):
-        self.report = report
+        self.report = report or Report()
 
     def test(self, filename):
         raise NotImplementedError('Abstract method')
