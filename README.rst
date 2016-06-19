@@ -37,6 +37,7 @@ Tables to write examples              Yes         Yes       Yes             Yes
 Fixtures language                     Java        Many      Python or Java  Python
 HTML generators integration           No          No        No              Yes
 Different kind of tables              No          Yes       No              Planed
+Generates test code                   No          No        No              Planed
 ====================================  ==========  ========  ==============  =======
 
 How does it work?
@@ -68,6 +69,13 @@ But this is hard to be written and read, so it can be simplified by using Markdo
 
     By setting the value of [5](- "a = TEXT") and adding [5](- "a += TEXT") more, it will return [10](- "a == TEXT)".
 
+Additionally, it is possible to set the test name just assigning the name to `TESTNAME` variable, grouping any following comparision as an assert to that test:
+
+    If TESTNAME is set to the [test name](- "TESTNAME = TEXT"), then any comparison will be added to that test.
+
+By default, any title (`h1`, `h2`, ...) is set as the test name.
+
+Remember that to make it even easier, **any comparision is an assertion**.
 
 
 Roadmap
