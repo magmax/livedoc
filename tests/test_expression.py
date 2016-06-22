@@ -16,7 +16,7 @@ class ExpressionAbstractTest(unittest.TestCase):
     def test_xml_property_is_abstract(self):
         sut = Expression()
         with self.assertRaises(NotImplementedError):
-            sut.xml
+            sut.as_xml()
 
 
 class ExpressionAutotype(unittest.TestCase):

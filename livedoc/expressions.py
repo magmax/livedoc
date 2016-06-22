@@ -15,8 +15,7 @@ class Expression(object):
     def output(self):
         raise NotImplementedError()
 
-    @property
-    def xml(self):
+    def as_xml(self):
         raise NotImplementedError()
 
     def autotype(self, value):
@@ -48,8 +47,7 @@ class Assignment(Expression):
     def __str__(self):
         return self.right
 
-    @property
-    def xml(self):
+    def as_xml(self):
         span = etree.Element('span')
         if not self._setting_testname:
             span.attrib['class'] = 'info'
@@ -88,8 +86,7 @@ class Comparison(Expression):
         )
         return result
 
-    @property
-    def xml(self):
+    def as_xml(self):
         span = etree.Element('span')
         if self.success:
             span.attrib['class'] = 'success'
@@ -124,8 +121,7 @@ class Call(Expression):
     def evaluate(self, variables, fixtures):
         self.result = eval(self.expression, fixtures, variables)
 
-    @property
-    def xml(self):
+    def as_xml(self):
         span = etree.Element('span')
         span.attrib['class'] = self.css_class
         inner1 = etree.Element('span')

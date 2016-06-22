@@ -17,7 +17,7 @@ class CallTest(unittest.TestCase):
     def test_xml(self):
         sut = Call('isinstance(1, int)')
         sut.evaluate({}, {})
-        xml = etree.tostring(sut.xml).decode()
+        xml = etree.tostring(sut.as_xml()).decode()
         assert xml == (
             '<span class="call">'
             '<span class="call-expression">isinstance(1, int)</span>'

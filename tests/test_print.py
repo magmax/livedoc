@@ -17,7 +17,7 @@ class PrintTest(unittest.TestCase):
     def test_xml(self):
         sut = Print('isinstance(1, int)')
         sut.evaluate({}, {})
-        xml = etree.tostring(sut.xml).decode()
+        xml = etree.tostring(sut.as_xml()).decode()
         assert xml == (
             '<span class="print">'
             '<span class="print-expression">isinstance(1, int)</span>'

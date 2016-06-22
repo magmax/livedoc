@@ -7,12 +7,11 @@ import markdown
 from lxml import etree
 
 from .expressions import expression_factory
-from .reports import Report
 
 
 class Processor(object):
-    def __init__(self, report=None):
-        self.report = report or Report()
+    def __init__(self, report):
+        self.report = report
 
     def test(self, filename):
         raise NotImplementedError('Abstract method')
@@ -56,7 +55,7 @@ class HtmlProcessor(Processor):
         expr = self.split_expression(expression)
         try:
             expr.evaluate(self.variables, fixtures)
-            a.addnext(expr.xml)
+            a.addnext(expr.as_xml())
         except Exception as e:
             self._format_exception(a, expr, e)
 

@@ -18,6 +18,6 @@ class Issue_1_Test(unittest.TestCase):
             '</span> is equal to '
             '<span class="success">example</span>'
         )
-        md = MarkdownProcessor()
+        md = MarkdownProcessor(report=unittest.mock.Mock())
         result = md.process_stream(text, {})
         assert expected in result
