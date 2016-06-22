@@ -24,5 +24,5 @@ class LivedocTest(unittest.TestCase):
             'example2',
         )
         with tempfile.TemporaryDirectory() as tmp:
-            rc = main([example_path, '-o', tmp])
+            rc = main([example_path, '-o', tmp, '-vvv'])
         assert rc == 2
