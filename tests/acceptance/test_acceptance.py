@@ -13,7 +13,7 @@ class LivedocTest(unittest.TestCase):
             'example1',
         )
         with tempfile.TemporaryDirectory() as tmp:
-            rc = main([example_path, '-o', tmp])
+            rc = main([example_path, '-o', tmp, '-vvvv'])
         assert rc == 0
 
     def test_example2(self):
@@ -24,5 +24,5 @@ class LivedocTest(unittest.TestCase):
             'example2',
         )
         with tempfile.TemporaryDirectory() as tmp:
-            rc = main([example_path, '-o', tmp, '-vvv'])
+            rc = main([example_path, '-o', tmp, '-vvvv'])
         assert rc == 2
