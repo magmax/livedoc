@@ -10,6 +10,8 @@ from .expressions import expression_factory
 
 
 class Processor(object):
+    SUCCESS, FAILURE, ERROR = range(3)
+
     def __init__(self, report):
         self.report = report
 
@@ -25,7 +27,7 @@ class CopyProcessor(Processor):
         return True
 
     def process_stream(self, content, fixtures):
-        return content
+        return content, self.SUCCESS
 
 
 class HtmlProcessor(Processor):
@@ -37,18 +39,21 @@ class HtmlProcessor(Processor):
         return filename.lower().endswith(('html', 'htm'))
 
     def process_stream(self, content, fixtures):
+        status = self.SUCCESS
+
         start = time.time()
         parser = etree.HTMLParser()
         tree = etree.parse(StringIO(content), parser)
         tree.getroot().insert(0, self.headers())
         self._preprocess(tree)
         for a in tree.findall('//a[@href="-"]'):
-            self.process_element(a, fixtures)
+            status = max(status, self.process_element(a, fixtures))
             a.getparent().remove(a)
         self._postprocess(tree, time.time() - start)
-        return etree.tostring(tree).decode()
+        return etree.tostring(tree).decode(), status
 
     def process_element(self, a, fixtures):
+        status = self.SUCCESS
         expression = a.attrib.get('title')
         self.variables['TEXT'] = a.text
         self.variables['OUT'] = ''
@@ -56,8 +61,11 @@ class HtmlProcessor(Processor):
         try:
             expr.evaluate(self.variables, fixtures)
             a.addnext(expr.as_xml())
+            status = self.FAILURE if expr.failed else self.SUCCESS
         except Exception as e:
             self._format_exception(a, expr, e)
+            return self.ERROR
+        return status
 
     def headers(self):
         head = etree.Element('head')

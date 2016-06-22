@@ -19,5 +19,6 @@ class Issue_1_Test(unittest.TestCase):
             '<span class="success">example</span>'
         )
         md = MarkdownProcessor(report=unittest.mock.Mock())
-        result = md.process_stream(text, {})
+        result, status = md.process_stream(text, {})
         assert expected in result
+        assert status == MarkdownProcessor.SUCCESS

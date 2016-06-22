@@ -4,9 +4,6 @@ from io import StringIO
 from lxml import etree
 from livedoc.processors import HtmlProcessor
 
-def mock_xml():
-    return etree.Element('mock')
-
 
 class HtmlProcessorTest(unittest.TestCase):
     def test_matches_html_common_extensions(self):
@@ -23,13 +20,14 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_process_returns_html(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())
-        result = sut.process_stream("whatever", {})
+        result, status = sut.process_stream("whatever", {})
         assert "whatever" in result
         assert "<body>" in result
+        assert status == HtmlProcessor.SUCCESS
 
     def test_includes_meta(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())
-        result = sut.process_stream("whatever", {})
+        result, status = sut.process_stream("whatever", {})
         tree = etree.parse(StringIO(result), etree.HTMLParser())
         root = tree.getroot()
         assert root[0].tag == 'head'
@@ -38,6 +36,7 @@ class HtmlProcessorTest(unittest.TestCase):
             x.attrib.get('content') == 'livedoc'
             for x in root[0].findall('meta')
         )
+        assert status == HtmlProcessor.SUCCESS
 
     @mock.patch('livedoc.processors.HtmlProcessor.split_expression')
     def test_basic_assignment(self, mock_split):
@@ -67,34 +66,41 @@ class HtmlProcessorTest(unittest.TestCase):
 
     def test_basic_check_success(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())
-        result = sut.process_stream('<a href="-" title="1 == 1">True</a>',
-                                    {})
+        result, status = sut.process_stream(
+            '<a href="-" title="1 == 1">True</a>',
+            {}
+        )
         assert '<span class="success">True</span>' in result
+        assert status == HtmlProcessor.SUCCESS
 
     def test_basic_check_failure(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())
-        r = sut.process_stream('<a href="-" title="1 == 0">True</a>',
-                               {})
+        r, status = sut.process_stream('<a href="-" title="1 == 0">True</a>',
+                                       {})
         assert '<span class="failure-expected">1</span><span>' in r
         assert '<span class="failure-result">0</span>' in r
+        assert status == HtmlProcessor.FAILURE
 
     def test_full_assignment_and_check(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())
-        result = sut.process_stream(
+        result, status = sut.process_stream(
             '<a href="-" title="a = TEXT">1</a>'
             '<a href="-" title="a == TEXT">1</a>',
             {}
         )
         assert '<span class="success">1</span>' in result
+        assert status == HtmlProcessor.SUCCESS
 
     def test_statement_raises_an_exception(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())
-        result = sut.process_stream('<a href="-" title="a = 1/0"></a>', {})
+        result, status = sut.process_stream('<a href="-" title="a = 1/0"></a>',
+                                            {})
         assert (
             'The expression: `1/0` returned division by zero'
             in result
         )
         assert 'Traceback (most recent call last):' in result
+        assert status == HtmlProcessor.ERROR
 
     def test_basic_table_processing(self):
         sut = HtmlProcessor(report=unittest.mock.Mock())

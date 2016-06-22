@@ -18,9 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class LiveDoc(object):
+    STATUS_SUCCESS, STATUS_FAILURE, STATUS_ERROR = range(3)
+
     def __init__(self, processors=None, decorator=None, report=None):
         self.decorator = decorator
         self.report = report or Report()
+        self.status = self.STATUS_SUCCESS
         self.processors = processors or [
             MarkdownProcessor(self.report),
             HtmlProcessor(self.report),
@@ -62,8 +65,11 @@ class LiveDoc(object):
         if not os.path.exists(directory):
             os.makedirs(directory)
         with open(source) as fd:
-            content = processor.process_stream(fd.read(),
-                                               copy.deepcopy(fixtures))
+            content, status = processor.process_stream(
+                fd.read(),
+                copy.deepcopy(fixtures)
+            )
+            self.status = max(self.status, status)
         if self.decorator:
             content = self.decorator.apply_to(content)
 

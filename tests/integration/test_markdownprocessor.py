@@ -20,6 +20,7 @@ class MarkdownProcessorTest(unittest.TestCase):
 
     def test_process_returns_html(self):
         sut = MarkdownProcessor(report=unittest.mock.Mock())
-        result = sut.process_stream("whatever", {})
+        result, status = sut.process_stream("whatever", {})
         assert "whatever" in result
         assert "<body>" in result
+        assert status == MarkdownProcessor.SUCCESS

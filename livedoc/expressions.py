@@ -15,6 +15,10 @@ class Expression(object):
     def output(self):
         raise NotImplementedError()
 
+    @property
+    def failed(self):
+        return False
+
     def as_xml(self):
         raise NotImplementedError()
 
@@ -105,6 +109,10 @@ class Comparison(Expression):
             new_span.text = str(self.right_result)
             span.append(new_span)
         return span
+
+    @property
+    def failed(self):
+        return not self.success
 
     def __str__(self):
         return "%s %s %s" % (self.left, self.operator, self.right)

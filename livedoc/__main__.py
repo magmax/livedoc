@@ -1,3 +1,4 @@
+import sys
 import argparse
 import logging
 from livedoc import LiveDoc
@@ -19,8 +20,11 @@ def configure_logging(level):
     )
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Generate Live Documentation')
+def main(args=None):
+    parser = argparse.ArgumentParser(
+        prog='livedoc',
+        description='Generate Live Documentation',
+    )
     parser.add_argument(
         'source',
         help='Path to be processed')
@@ -40,7 +44,7 @@ def main():
         default=0,
         help="Increase verbosity."
     )
-    args = parser.parse_args()
+    args = parser.parse_args(args or sys.argv[1:])
     configure_logging(args.verbose)
     decorator = Decorate(args.theme)
     decorator.add_css(
@@ -53,7 +57,7 @@ def main():
     report.register(ConsoleReporter())
     livedoc = LiveDoc(decorator=decorator, report=report)
     livedoc.process(args.source, args.output)
-
+    return livedoc.status
 
 if __name__ == '__main__':  # NOQA
-    main()
+    sys.exit(main())

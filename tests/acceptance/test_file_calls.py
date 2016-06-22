@@ -9,9 +9,9 @@ class LivedocCallsTest(unittest.TestCase):
     def test_example1(self):
         processor = mock.Mock()
         processor.test = mock.Mock(return_value=True)
-        processor.process_stream = mock.Mock(return_value="whatever")
+        processor.process_stream = mock.Mock(return_value=("whatever", 0))
         source = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
             'examples',
             'example1',
         )

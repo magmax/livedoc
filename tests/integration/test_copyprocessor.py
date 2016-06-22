@@ -14,4 +14,6 @@ class CopyProcessorTest(unittest.TestCase):
 
     def test_process_returns_echo(self):
         sut = CopyProcessor(report=unittest.mock.Mock())
-        assert sut.process_stream("whatever", {}) == "whatever"
+        result, status = sut.process_stream("whatever", {})
+        assert result == "whatever"
+        assert status == CopyProcessor.SUCCESS
