@@ -47,8 +47,8 @@ class HtmlProcessorTest(unittest.TestCase):
         sut = HtmlProcessor(report=unittest.mock.Mock())
         sut.process_stream('<a href="-" title="foo = TEXT">bar</a>', {})
 
-        assert mock_assignment.called_once_with('foo', 'bar')
-        assert mock_assignment.evaluate.called_once_with({}, {})
+        mock_split.assert_called_once_with('foo = TEXT')
+        mock_assignment.evaluate.assert_called_once_with(mock.ANY, {})
         assert mock_assignment.as_xml.called
 
     @mock.patch('livedoc.processors.HtmlProcessor.split_expression')
@@ -60,8 +60,8 @@ class HtmlProcessorTest(unittest.TestCase):
         sut = HtmlProcessor(report=unittest.mock.Mock())
         sut.process_stream('<a href="-" title="OUT = \'foo\'"></a>', {})
 
-        assert mock_print.called_once_with("'foo'")
-        assert mock_print.evaluate.called_once_with({}, {})
+        mock_split.assert_called_once_with("OUT = 'foo'")
+        mock_print.evaluate.assert_called_once_with(mock.ANY, {})
         assert mock_print.as_xml.called
 
     def test_basic_check_success(self):

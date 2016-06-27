@@ -52,12 +52,12 @@ class Reporter(object):
     def add_exception(self, expression, exception):
         raise NotImplementedError('Abstract method')
 
+    def change_test(self, name):
+        self.current_test = name
+
     def change_file(self, name):
         self.current_file = name
         self.current_test = self.DEFAULT_TESTNAME
-
-    def change_test(self, name):
-        self.current_test = name
 
     def file_finish(self):
         self.current_test = self.DEFAULT_TESTNAME
@@ -65,27 +65,26 @@ class Reporter(object):
 
 
 class ConsoleReporter(Reporter):
-    EMPTY = 'EMPTY'
+    NOT_SET = 'NOT SET'
     SUCCESS = 'OK'
     FAILURE = 'FAIL'
     ERROR = 'ERROR'
 
     def __init__(self, *args, **kwargs):
-        self._status = self.EMPTY
+        self._status = self.NOT_SET
         super().__init__(*args, **kwargs)
 
     def add_comparison(self, expression, resolved_expression, result):
-        if self._status in (self.EMPTY, self.SUCCESS):
+        if self._status in (self.NOT_SET, self.SUCCESS):
             self._status = self.SUCCESS if result else self.FAILURE
 
         logger.debug(
-            '%s - %s (%s // %s) = %s' % (
-                self.current_file,
-                self.current_test,
-                expression,
-                resolved_expression,
-                result,
-            )
+            '%s - %s (%s // %s) = %s',
+            self.current_file,
+            self.current_test,
+            expression,
+            resolved_expression,
+            result,
         )
 
     def add_exception(self, expression, exception):
@@ -96,16 +95,16 @@ class ConsoleReporter(Reporter):
         if name == self.current_test:
             return
         self.print_status()
-        self._status = self.EMPTY
+        self._status = self.NOT_SET
         super().change_test(name)
 
     def file_finish(self):
         self.print_status()
-        self._status = self.EMPTY
+        self._status = self.NOT_SET
         super().file_finish()
 
     def print_status(self):
-        if self._status == self.EMPTY:
+        if self._status == self.NOT_SET:
             return
         msg = '%s - %s... %s' % (
             self.current_file,
