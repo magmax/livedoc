@@ -13,7 +13,7 @@ install:
 
 script:
   - flake8
-  - py.test -vv
+  - py.test -vv tests/integration
 
 after_success:
   - coveralls

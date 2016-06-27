@@ -2,7 +2,7 @@ import sys
 import argparse
 import logging
 from livedoc import LiveDoc
-from livedoc.reports import Report, ConsoleReporter
+from livedoc.reports import Report, ConsoleReporter, JunitReporter
 
 from decorate import Decorate
 import pkg_resources
@@ -39,6 +39,12 @@ def main(args=None):
         help="Theme to be used."
     )
     parser.add_argument(
+        '--junit-report',
+        dest='junit_report',
+        default=None,
+        help="path to junit report output"
+    )
+    parser.add_argument(
         '-v', '--verbose',
         action='count',
         default=0,
@@ -55,6 +61,8 @@ def main(args=None):
     )
     report = Report()
     report.register(ConsoleReporter())
+    if args.junit_report:
+        report.register(JunitReporter(args.junit_report))
     livedoc = LiveDoc(decorator=decorator, report=report)
     livedoc.process(args.source, args.output)
     return livedoc.status
