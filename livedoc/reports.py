@@ -120,17 +120,16 @@ class ConsoleReporter(Reporter):
             logger.error(msg)
 
 
-class TestSuite(object):
+class TestCase(object):
     def __init__(self, name):
         self.name = name
-        self.errors = []
-        self.failures = []
-        self.tests = 0
-        self.skipped = 0
         self.time = None
+        self.skipped = False
+        self.failure = False
+        self.error = False
 
-    def add_failure(self, expression, resolved_expression, result):
-        self.failures.append(
+    def set_failure(self, expression, resolved_expression, result):
+        self.failure = (
             'The expression `{exp}`, resolved as `{res}`,'
             ' returned `{ret}`, what is False.'
             .format(
@@ -140,8 +139,8 @@ class TestSuite(object):
             )
         )
 
-    def add_error(self, expression, exception):
-        self.errors.append(
+    def set_error(self, expression, exception):
+        self.error = (
             'The expression `{exp}` raised the exception:\n{exc}'
             .format(
                 exp=expression,
@@ -150,33 +149,59 @@ class TestSuite(object):
         )
 
     def as_xml(self):
+        test = etree.Element(
+            'testcase',
+            dict(
+                name=self.name,
+            )
+        )
+        if self.failure:
+            failure = etree.Element('failure', {'message': "test failure"})
+            failure.text = self.failure
+            test.append(failure)
+        if self.error:
+            error = etree.Element('error', {'message': "test error"})
+            error.text = self.failure
+            test.append(error)
+        return test
+
+
+class TestSuite(object):
+    def __init__(self, name):
+        self.name = name
+        self._tests = []
+
+    def add_test(self, test):
+        self._tests.append(test)
+
+    @property
+    def tests(self):
+        return len(self._tests)
+
+    @property
+    def failures(self):
+        return sum(1 for x in self._tests if x.failure)
+
+    @property
+    def errors(self):
+        return sum(1 for x in self._tests if x.error)
+
+    @property
+    def time(self):
+        return sum(x.time for x in self._tests if x.time)
+
+    def as_xml(self):
         testsuite = etree.Element(
             'testsuite', dict(
                 name=self.name,
-                errors=str(len(self.errors)),
-                failures=str(len(self.failures)),
+                errors=str(self.errors),
+                failures=str(self.failures),
                 tests=str(self.tests),
-                time=str(time),
+                time=str(self.time),
             )
         )
-        for failure in self.failures:
-            item = etree.Element(
-                'failure',
-                dict(
-                    message="Assertion failure",
-                )
-            )
-            item.text = failure
-            testsuite.append(item)
-        for error in self.errors:
-            item = etree.Element(
-                'error',
-                dict(
-                    message="Error",
-                )
-            )
-            item.text = error
-            testsuite.append(item)
+        for test in self._tests:
+            testsuite.append(test.as_xml())
 
         return testsuite
 
@@ -184,22 +209,27 @@ class TestSuite(object):
 class JunitReporter(Reporter):
     def __init__(self, outputdir, *args, **kwargs):
         self.outputdir = outputdir
-        self._current = TestSuite(self.DEFAULT_TESTNAME)
-        self._results = [self._current]
-        self._time = time.time()
+        self._current_suite = TestSuite(self.DEFAULT_TESTNAME)
+        self._suites = [self._current_suite]
         super().__init__(*args, **kwargs)
 
     def add_comparison(self, expression, resolved_expression, result):
-        self._current.tests += 1
+        test = TestCase(expression)
+
         if not result:
-            self._current.add_failure(
-                expression,
-                resolved_expression,
-                result,
-            )
+            test.set_failure(expression, resolved_expression, result)
+
+        self._current_suite.add_test(test)
 
     def add_exception(self, expression, exception):
-        self._current.add_error(expression, exception)
+        test = TestCase(expression)
+        test.set_error(expression, exception)
+
+        self._current_suite.add_test(test)
+
+    def change_test(self, name):
+        self._current_suite = TestSuite(name)
+        self._suites.append(self._current_suite)
 
     def file_finish(self):
         filename = os.path.join(
@@ -215,6 +245,6 @@ class JunitReporter(Reporter):
 
     def as_xml(self):
         tree = etree.Element('testsuites')
-        for result in self._results:
-            tree.append(result.as_xml())
+        for suite in self._suites:
+            tree.append(suite.as_xml())
         return tree
