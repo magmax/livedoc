@@ -31,7 +31,8 @@ Feature                               Concordion  Fitnesse  RobotFramework  Live
 ====================================  ==========  ========  ==============  =======
 Markdown support                      Yes         No        No              Yes
 Customizable output                   No          No        No              Yes
-Xunit integration                     Yes         Yes       Yes             Planed
+Xunit integration                     Yes         Yes       Yes             No
+Xunit results                         Yes         Yes       Yes             Yes
 REST test facilities                  No          No        Yes             Planed
 Tables to write examples              Yes         Yes       Yes             Yes
 Fixtures language                     Java        Many      Python or Java  Python
@@ -81,7 +82,6 @@ Remember that to make it even easier, **any comparision is an assertion**.
 Roadmap
 =======
 
-- **0.4.0**: junit reports
 - **0.5.0**: advanced fixtures
 
 FAQ
