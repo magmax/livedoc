@@ -161,7 +161,7 @@ class TestCase(object):
             test.append(failure)
         if self.error:
             error = etree.Element('error', {'message': "test error"})
-            error.text = self.failure
+            error.text = self.error
             test.append(error)
         return test
 
@@ -191,6 +191,8 @@ class TestSuite(object):
         return sum(x.time for x in self._tests if x.time)
 
     def as_xml(self):
+        if self._tests == []:
+            return
         testsuite = etree.Element(
             'testsuite', dict(
                 name=self.name,
@@ -240,11 +242,15 @@ class JunitReporter(Reporter):
         if not os.path.exists(directory):
             os.makedirs(directory)
         with open(filename, 'w+') as fd:
-            fd.write(etree.tostring(self.as_xml()).decode())
+            xml = self.as_xml()
+            if xml:
+                fd.write(etree.tostring(xml).decode())
         super().file_finish()
 
     def as_xml(self):
         tree = etree.Element('testsuites')
         for suite in self._suites:
-            tree.append(suite.as_xml())
+            xml = suite.as_xml()
+            if xml:
+                tree.append(xml)
         return tree
