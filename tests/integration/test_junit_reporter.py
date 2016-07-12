@@ -1,8 +1,8 @@
 import unittest
 import tempfile
-from unittest import mock
 from livedoc.reports import JunitReporter
 from lxml import etree
+
 
 class JunitReporterTest(unittest.TestCase):
     def get_attribute(self, xml, attr):
@@ -140,7 +140,6 @@ class JunitReporterTest(unittest.TestCase):
             assert 2 == self.get_suite_number(xml)
             assert 0 == self.get_errors(xml)
             assert 0 == self.get_failures(xml)
-
 
     def test_change_file(self):
         with tempfile.TemporaryDirectory() as tmp:

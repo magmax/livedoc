@@ -1,6 +1,5 @@
 import os
 import logging
-import time
 from lxml import etree
 
 logger = logging.getLogger(__name__)
