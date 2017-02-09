@@ -52,6 +52,7 @@ def main(args=None):
     )
     args = parser.parse_args(args or sys.argv[1:])
     configure_logging(args.verbose)
+
     decorator = Decorate(args.theme)
     decorator.add_css(
         pkg_resources.resource_filename('livedoc', 'assets/base.css')
@@ -63,6 +64,7 @@ def main(args=None):
     report.register(ConsoleReporter())
     if args.junit_report:
         report.register(JunitReporter(args.junit_report))
+
     livedoc = LiveDoc(decorator=decorator, report=report)
     livedoc.process(args.source, args.output)
     return livedoc.status

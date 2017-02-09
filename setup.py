@@ -73,19 +73,19 @@ setup(
     zip_safe=False,
     extras_require={
         'develop': [
-            'pytest        >= 2.6.4',
-            'pytest-cov    >= 2.2.1',
+            'pytest        >= 3.0.6',
+            'pytest-cov    >= 2.4.0',
 
             'coveralls     >= 1.1',
 
-            'flake8        >= 2.5.4',
+            'flake8        >= 3.3.8',
         ],
     },
     install_requires=[
-        'markdown  == 2.6.6',
-        'lxml      == 3.6.0',
-        'pyyaml    == 3.11',
-        'cssselect == 0.9.1',
+        'markdown  == 2.6.8',
+        'lxml      == 3.7.2',
+        'pyyaml    == 3.12',
+        'cssselect == 1.0.1',
         'decorate  >= 0.0.17',
     ],
     entry_points={

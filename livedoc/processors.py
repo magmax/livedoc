@@ -154,7 +154,7 @@ class HtmlProcessor(Processor):
         )
         id = uuid.uuid4().hex
         button = etree.Element("button")
-        button.attrib['class'] = "exception-button"
+        button.attrib['class'] = "decorate-hook exception-button"
         button.attrib['onclick'] = "toggle_visibility('%s');" % id
         button.text = msg
         anchor.addnext(button)
