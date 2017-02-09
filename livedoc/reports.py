@@ -151,7 +151,7 @@ class TestCase(object):
         test = etree.Element(
             'testcase',
             dict(
-                name=self.name,
+                name=str(self.name),
             )
         )
         if self.failure:
@@ -242,7 +242,7 @@ class JunitReporter(Reporter):
             os.makedirs(directory)
         with open(filename, 'w+') as fd:
             xml = self.as_xml()
-            if xml:
+            if xml is not None:
                 fd.write(etree.tostring(xml).decode())
         super().file_finish()
 
@@ -250,6 +250,6 @@ class JunitReporter(Reporter):
         tree = etree.Element('testsuites')
         for suite in self._suites:
             xml = suite.as_xml()
-            if xml:
+            if xml is not None:
                 tree.append(xml)
         return tree
