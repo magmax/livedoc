@@ -4,8 +4,11 @@ import logging
 from livedoc import LiveDoc
 from livedoc.reports import Report, ConsoleReporter, JunitReporter
 
-from decorate import Decorate
 import pkg_resources
+try:
+    from decorate import Decorate
+except:
+    Decorate = None
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +56,16 @@ def main(args=None):
     args = parser.parse_args(args or sys.argv[1:])
     configure_logging(args.verbose)
 
-    decorator = Decorate(args.theme)
-    decorator.add_css(
-        pkg_resources.resource_filename('livedoc', 'assets/base.css')
-    )
-    decorator.add_js(
-        pkg_resources.resource_filename('livedoc', 'assets/base.js')
-    )
+    if Decorate:
+        decorator = Decorate(args.theme)
+        decorator.add_css(
+            pkg_resources.resource_filename('livedoc', 'assets/base.css')
+        )
+        decorator.add_js(
+            pkg_resources.resource_filename('livedoc', 'assets/base.js')
+        )
+    else:
+        decorator = None
     report = Report()
     report.register(ConsoleReporter())
     if args.junit_report:

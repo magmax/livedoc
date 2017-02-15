@@ -80,13 +80,15 @@ setup(
 
             'flake8        >= 3.3.8',
         ],
+	'decorate': [
+            'decorate'
+	],
     },
     install_requires=[
         'markdown  == 2.6.8',
         'lxml      == 3.7.2',
         'pyyaml    == 3.12',
         'cssselect == 1.0.1',
-        'decorate  >= 0.0.17',
     ],
     entry_points={
         'console_scripts': [
