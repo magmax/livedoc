@@ -4,7 +4,6 @@ import logging
 from livedoc import LiveDoc
 from livedoc.reports import Report, ConsoleReporter, JunitReporter
 
-import pkg_resources
 
 logger = logging.getLogger(__name__)
 

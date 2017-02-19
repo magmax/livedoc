@@ -105,14 +105,16 @@ class Comparison(Expression):
         else:
             span.attrib['class'] = self.theme.get_classes('failure')
             old_span = etree.Element('span')
-            old_span.attrib['class'] = self.theme.get_classes('failure_expected')
+            old_span.attrib['class'] = self.theme.get_classes(
+                    'failure_expected')
             old_span.text = str(self.left_result)
             span.append(old_span)
             space_span = etree.Element('span')
             space_span.text = ' '
             span.append(space_span)
             new_span = etree.Element('span')
-            new_span.attrib['class'] = self.theme.get_classes('failure_result')
+            new_span.attrib['class'] = self.theme.get_classes(
+                    'failure_result')
             new_span.text = str(self.right_result)
             span.append(new_span)
         return span
@@ -138,17 +140,21 @@ class Call(Expression):
 
     def as_xml(self):
         span = etree.Element('span')
-        span.attrib['class'] = self.theme.get_classes('%s_span' % self.css_class)
+        span.attrib['class'] = self.theme.get_classes(
+                '%s_span' % self.css_class)
         inner1 = etree.Element('span')
-        inner1.attrib['class'] = self.theme.get_classes('%s_expression' % self.css_class)
+        inner1.attrib['class'] = self.theme.get_classes(
+                '%s_expression' % self.css_class)
         inner1.text = str(self.expression)
         span.append(inner1)
         inner2 = etree.Element('span')
-        inner2.attrib['class'] = self.theme.get_classes('%s_separator' % self.css_class)
+        inner2.attrib['class'] = self.theme.get_classes(
+                '%s_separator' % self.css_class)
         inner2.text = ' '
         span.append(inner2)
         inner2 = etree.Element('span')
-        inner2.attrib['class'] = self.theme.get_classes('%s_result' % self.css_class)
+        inner2.attrib['class'] = self.theme.get_classes(
+                '%s_result' % self.css_class)
         inner2.text = str(self.result)
         span.append(inner2)
 
@@ -176,5 +182,11 @@ def expression_factory(expression, theme=None, report=None):
                 else:
                     return Assignment(l, r, theme=theme, report=report)
             elif token.string not in '+-*/%!()[]{}':
-                return Comparison(l, r, token.string, theme=theme, report=report)
+                return Comparison(
+                    l,
+                    r,
+                    token.string,
+                    theme=theme,
+                    report=report,
+                )
     return Call(expression, theme=theme, report=report)

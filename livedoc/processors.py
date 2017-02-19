@@ -1,4 +1,3 @@
-import os
 import time
 import uuid
 import traceback
@@ -6,7 +5,6 @@ import copy
 from io import StringIO
 import markdown
 from lxml import etree
-import jinja2
 
 from livedoc.expressions import expression_factory
 from livedoc.theme import Theme

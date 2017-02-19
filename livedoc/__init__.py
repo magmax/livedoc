@@ -2,7 +2,6 @@ import os
 import time
 import logging
 import copy
-import jinja2
 
 from .exceptions import LiveDocException
 from .processors import (
@@ -26,7 +25,7 @@ class LiveDoc(object):
         self.status = self.STATUS_SUCCESS
         self.processors = processors or [
             MarkdownProcessor(theme_name=theme_name, report=self.report),
-            HtmlProcessor(theme_name=theme_name ,report=self.report),
+            HtmlProcessor(theme_name=theme_name, report=self.report),
             CopyProcessor(report=self.report),
         ]
 
