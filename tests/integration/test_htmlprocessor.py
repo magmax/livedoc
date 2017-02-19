@@ -77,6 +77,7 @@ class HtmlProcessorTest(unittest.TestCase):
         sut = HtmlProcessor(report=unittest.mock.Mock())
         r, status = sut.process_stream('<a href="-" title="1 == 0">True</a>',
                                        {})
+        print(r)
         assert '<span class="failure-expected">1</span><span>' in r
         assert '<span class="failure-result">0</span>' in r
         assert status == HtmlProcessor.FAILURE

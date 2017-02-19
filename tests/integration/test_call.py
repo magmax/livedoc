@@ -21,7 +21,7 @@ class CallTest(unittest.TestCase):
         assert xml == (
             '<span class="call">'
             '<span class="call-expression">isinstance(1, int)</span>'
-            '<span class="call-sep"> </span>'
+            '<span class="call-separator"> </span>'
             '<span class="call-result">True</span>'
             '</span>'
         )

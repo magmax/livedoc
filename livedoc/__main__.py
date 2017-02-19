@@ -5,10 +5,6 @@ from livedoc import LiveDoc
 from livedoc.reports import Report, ConsoleReporter, JunitReporter
 
 import pkg_resources
-try:
-    from decorate import Decorate
-except:
-    Decorate = None
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +34,7 @@ def main(args=None):
     )
     parser.add_argument(
         '-t', '--theme',
-        default="bootstrap",
+        default="livedoc",
         help="Theme to be used."
     )
     parser.add_argument(
@@ -56,22 +52,12 @@ def main(args=None):
     args = parser.parse_args(args or sys.argv[1:])
     configure_logging(args.verbose)
 
-    if Decorate:
-        decorator = Decorate(args.theme)
-        decorator.add_css(
-            pkg_resources.resource_filename('livedoc', 'assets/base.css')
-        )
-        decorator.add_js(
-            pkg_resources.resource_filename('livedoc', 'assets/base.js')
-        )
-    else:
-        decorator = None
     report = Report()
     report.register(ConsoleReporter())
     if args.junit_report:
         report.register(JunitReporter(args.junit_report))
 
-    livedoc = LiveDoc(decorator=decorator, report=report)
+    livedoc = LiveDoc(report=report, theme_name=args.theme)
     livedoc.process(args.source, args.output)
     return livedoc.status
 

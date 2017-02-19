@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import copy
+import jinja2
 
 from .exceptions import LiveDocException
 from .processors import (
@@ -20,14 +21,13 @@ logger = logging.getLogger(__name__)
 class LiveDoc(object):
     STATUS_SUCCESS, STATUS_FAILURE, STATUS_ERROR = range(3)
 
-    def __init__(self, processors=None, decorator=None, report=None):
-        self.decorator = decorator
+    def __init__(self, processors=None, theme_name=None, report=None):
         self.report = report or Report()
         self.status = self.STATUS_SUCCESS
         self.processors = processors or [
-            MarkdownProcessor(self.report),
-            HtmlProcessor(self.report),
-            CopyProcessor(self.report),
+            MarkdownProcessor(theme_name=theme_name, report=self.report),
+            HtmlProcessor(theme_name=theme_name ,report=self.report),
+            CopyProcessor(report=self.report),
         ]
 
     def process(self, source, target):
@@ -37,8 +37,6 @@ class LiveDoc(object):
             self.process_directory(source, target)
         else:
             self.process_file(source, target)
-        if self.decorator:
-            self.decorator.copy_assets(target)
         logger.info('Finished in %.4f seconds' % (time.time() - start))
 
     def process_directory(self, source, target):
@@ -70,8 +68,6 @@ class LiveDoc(object):
                 copy.deepcopy(fixtures)
             )
             self.status = max(self.status, status)
-        if self.decorator:
-            content = self.decorator.apply_to(content)
 
         with open(target, 'w+') as fd:
             fd.write(content)

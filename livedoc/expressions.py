@@ -1,12 +1,19 @@
 import tokenize
+import logging
 from io import BytesIO
 from lxml import etree
-from .reports import Report
+
+from livedoc.reports import Report
+from livedoc.theme import Theme
+
+
+logger = logging.getLogger(__name__)
 
 
 class Expression(object):
-    def __init__(self, report=None):
+    def __init__(self, theme=None, report=None):
         self.report = report or Report()
+        self.theme = theme or Theme()
 
     def evaluate(self, variables, fixtures):
         raise NotImplementedError()
@@ -54,7 +61,7 @@ class Assignment(Expression):
     def as_xml(self):
         span = etree.Element('span')
         if not self._setting_testname:
-            span.attrib['class'] = 'info'
+            span.attrib['class'] = self.theme.get_classes('info')
         span.text = str(self.result)
         return span
 
@@ -93,19 +100,19 @@ class Comparison(Expression):
     def as_xml(self):
         span = etree.Element('span')
         if self.success:
-            span.attrib['class'] = 'success'
+            span.attrib['class'] = self.theme.get_classes('success')
             span.text = str(self.text)
         else:
-            span.attrib['class'] = 'failure'
+            span.attrib['class'] = self.theme.get_classes('failure')
             old_span = etree.Element('span')
-            old_span.attrib['class'] = 'failure-expected'
+            old_span.attrib['class'] = self.theme.get_classes('failure_expected')
             old_span.text = str(self.left_result)
             span.append(old_span)
             space_span = etree.Element('span')
             space_span.text = ' '
             span.append(space_span)
             new_span = etree.Element('span')
-            new_span.attrib['class'] = 'failure-result'
+            new_span.attrib['class'] = self.theme.get_classes('failure_result')
             new_span.text = str(self.right_result)
             span.append(new_span)
         return span
@@ -131,17 +138,17 @@ class Call(Expression):
 
     def as_xml(self):
         span = etree.Element('span')
-        span.attrib['class'] = self.css_class
+        span.attrib['class'] = self.theme.get_classes('%s_span' % self.css_class)
         inner1 = etree.Element('span')
-        inner1.attrib['class'] = '%s-expression' % self.css_class
+        inner1.attrib['class'] = self.theme.get_classes('%s_expression' % self.css_class)
         inner1.text = str(self.expression)
         span.append(inner1)
         inner2 = etree.Element('span')
-        inner2.attrib['class'] = '%s-sep' % self.css_class
+        inner2.attrib['class'] = self.theme.get_classes('%s_separator' % self.css_class)
         inner2.text = ' '
         span.append(inner2)
         inner2 = etree.Element('span')
-        inner2.attrib['class'] = '%s-result' % self.css_class
+        inner2.attrib['class'] = self.theme.get_classes('%s_result' % self.css_class)
         inner2.text = str(self.result)
         span.append(inner2)
 
@@ -158,16 +165,16 @@ class Print(Call):
         super().__init__(*args, **kwargs)
 
 
-def expression_factory(expression, report=None):
+def expression_factory(expression, theme=None, report=None):
     for token in tokenize.tokenize(BytesIO(expression.encode()).readline):
         if token.type == tokenize.OP:
             l = token.line[0:token.start[1]].strip()
             r = token.line[token.end[1]:].strip()
             if token.string == '=':
                 if l == 'OUT':
-                    return Print(r, report=report)
+                    return Print(r, theme=theme, report=report)
                 else:
-                    return Assignment(l, r, report=report)
+                    return Assignment(l, r, theme=theme, report=report)
             elif token.string not in '+-*/%!()[]{}':
-                return Comparison(l, r, token.string, report=report)
-    return Call(expression, report=report)
+                return Comparison(l, r, token.string, theme=theme, report=report)
+    return Call(expression, theme=theme, report=report)
