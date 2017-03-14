@@ -32,12 +32,10 @@ class CopyProcessor(Processor):
 
 
 class HtmlProcessor(Processor):
-    def __init__(self,  theme_name=None, *args, **kwargs):
+    def __init__(self,  theme=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.variables = {'__builtins__': {}}
-        theme_name = theme_name or 'livedoc'
-        self.theme = Theme()
-        self.theme.load(theme_name)
+        self.theme = theme or Theme()
 
     def test(self, filename):
         return filename.lower().endswith(('html', 'htm'))

@@ -10,6 +10,7 @@ from .processors import (
     CopyProcessor,
 )
 from livedoc.reports import Report
+from livedoc.theme import Theme
 
 __ALL__ = ['LiveDoc']
 
@@ -23,9 +24,11 @@ class LiveDoc(object):
     def __init__(self, processors=None, theme_name=None, report=None):
         self.report = report or Report()
         self.status = self.STATUS_SUCCESS
+        self.theme = Theme()
+        self.theme.load(theme_name)
         self.processors = processors or [
-            MarkdownProcessor(theme_name=theme_name, report=self.report),
-            HtmlProcessor(theme_name=theme_name, report=self.report),
+            MarkdownProcessor(theme=self.theme, report=self.report),
+            HtmlProcessor(theme=self.theme, report=self.report),
             CopyProcessor(report=self.report),
         ]
 
@@ -36,6 +39,7 @@ class LiveDoc(object):
             self.process_directory(source, target)
         else:
             self.process_file(source, target)
+        self.theme.copy_assets(target)
         logger.info('Finished in %.4f seconds' % (time.time() - start))
 
     def process_directory(self, source, target):
