@@ -88,6 +88,7 @@ class Theme(object):
 
     def copy_assets(self, output):
         logger.debug('Copying assets to %s' % output)
+
         def copytree(source, target):
             for item in os.listdir(source):
                 s = os.path.join(source, item)
