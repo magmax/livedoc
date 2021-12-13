@@ -83,7 +83,7 @@ setup(
     },
     install_requires=[
         'markdown  == 2.6.8',
-        'lxml      == 3.7.2',
+        'lxml      == 4.6.5',
         'pyyaml    == 3.12',
         'cssselect == 1.0.1',
         'jinja2    == 2.9.5',
