@@ -86,7 +86,7 @@ setup(
         'lxml      == 3.7.2',
         'pyyaml    == 3.12',
         'cssselect == 1.0.1',
-        'jinja2    == 2.9.5',
+        'jinja2    == 2.11.3',
     ],
     entry_points={
         'console_scripts': [
